@@ -1,0 +1,40 @@
+{
+    "name": "surgiie/blade",
+    "description": "A extended version of the laravel blade engine so it can be used on any textual.",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Sergio Compean",
+            "email": "scompean24@gmail.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "Surgiie\\Blade\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Surgiie\\Blade\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "test": "vendor/bin/pest tests -c phpunit.dist.xml"
+    },
+    "require": {
+        "php": "^8.0",
+        "illuminate/console": "^9.0",
+        "illuminate/view": "^9.0"
+    },
+    "require-dev": {
+        "laravel/pint": "^1.2",
+        "mockery/mockery": "^1.4.4",
+        "pestphp/pest": "^1.21.3",
+        "symfony/var-dumper": "^6.0"
+    },
+    "config": {
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
+        }
+    }
+}
