@@ -6,7 +6,9 @@ An extended version of the Laravel Blade engine so that it can be used on any te
 
 ## Installation
 
-`composer require surgiie/blade`
+```bash
+composer require surgiie/blade
+```
 
 ### Use
 
