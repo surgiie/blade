@@ -6,36 +6,8 @@ use Surgiie\Blade\Blade;
 use Surgiie\Blade\Exceptions\FileNotFoundException;
 use Surgiie\Blade\Exceptions\UndefinedVariableException;
 
-/**The directory we use to put test files.*/
-function test_file_path(string $path = '')
-{
-    return rtrim(__DIR__.'/mock'.'/'.$path);
-}
-/**Cleanup steps.*/
-function tear_down()
-{
-    @mkdir($mockDir = test_file_path());
-
-    $fs = new Filesystem;
-
-    $fs->deleteDirectory($mockDir, preserve: true);
-}
-/**
- * Write a test file to testing directory.
- */
-function put_test_file(string $file, string $contents)
-{
-    $file = trim($file, '/');
-
-    $path = test_file_path().'/'.$file;
-
-    @mkdir(dirname($path), recursive: true);
-
-    file_put_contents($path, $contents);
-}
-
-beforeEach(fn () => tear_down());
-afterEach(fn () => tear_down());
+beforeEach(fn () => blade_tear_down());
+afterEach(fn () => blade_tear_down());
 
 it('throws exception when file doesnt exist', function () {
     expect(function () {
@@ -45,7 +17,7 @@ it('throws exception when file doesnt exist', function () {
 });
 
 it('it can compile file', function () {
-    put_test_file('example.yaml', <<<'EOL'
+    put_blade_test_file('example.yaml', <<<'EOL'
     name: {{ $name }}
     favorite_food: {{ $favoriteFood }}
     pets:
@@ -61,7 +33,7 @@ it('it can compile file', function () {
 
     $blade = new Blade(new Container, new Filesystem);
 
-    $contents = $blade->compile(test_file_path('example.yaml'), [
+    $contents = $blade->compile(blade_test_file_path('example.yaml'), [
         'name' => 'Bob',
         'favoriteFood' => 'Pizza',
         'includeAddress' => true,
@@ -82,7 +54,7 @@ it('it can compile file', function () {
 
 it('throws exception when variables are missing', function () {
     expect(function () {
-        put_test_file('example.conf', <<<'EOL'
+        put_blade_test_file('example.conf', <<<'EOL'
         server {
             server_name   {{$serverName}};
             access_log   {{$accessLogPath}}  main;
@@ -102,12 +74,12 @@ it('throws exception when variables are missing', function () {
         EOL);
 
         $blade = new Blade(new Container, new Filesystem);
-        $blade->compile(test_file_path('example.conf'), []);
+        $blade->compile(blade_test_file_path('example.conf'), []);
     })->toThrow(UndefinedVariableException::class);
 });
 
 it('it can include file', function () {
-    put_test_file('main.yaml', <<<'EOL'
+    put_blade_test_file('main.yaml', <<<'EOL'
     name: {{ $name }}
     favorite_food: {{ $favoriteFood }}
     pets:
@@ -116,7 +88,7 @@ it('it can include file', function () {
         @endforeach
     @include('include.yaml')
     EOL);
-    put_test_file('include.yaml', <<<'EOL'
+    put_blade_test_file('include.yaml', <<<'EOL'
     contact_info:
         phone: 1234567890
         @if($includeAddress)
@@ -126,7 +98,7 @@ it('it can include file', function () {
 
     $blade = new Blade(new Container, new Filesystem);
 
-    $contents = $blade->compile(test_file_path('main.yaml'), [
+    $contents = $blade->compile(blade_test_file_path('main.yaml'), [
         'name' => 'Bob',
         'favoriteFood' => 'Pizza',
         'includeAddress' => true,

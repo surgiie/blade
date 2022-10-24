@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Filesystem\Filesystem;
 use Surgiie\Blade\Tests\TestCase;
 
 /*
@@ -13,7 +14,7 @@ use Surgiie\Blade\Tests\TestCase;
 |
 */
 
-uses(TestCase::class)->in('Feature');
+uses(TestCase::class)->in(__DIR__);
 
 /*
 |--------------------------------------------------------------------------
@@ -41,7 +42,30 @@ expect()->extend('toBeOne', function () {
 |
 */
 
-function something()
+/**The directory we use to put test files.*/
+function blade_test_file_path(string $path = '')
 {
-    // ..
+    return rtrim(__DIR__.'/mock'.'/'.$path);
+}
+/**Cleanup steps.*/
+function blade_tear_down()
+{
+    @mkdir($mockDir = blade_test_file_path());
+
+    $fs = new Filesystem;
+
+    $fs->deleteDirectory($mockDir, preserve: true);
+}
+/**
+ * Write a test file to testing directory.
+ */
+function put_blade_test_file(string $file, string $contents)
+{
+    $file = trim($file, '/');
+
+    $path = blade_test_file_path().'/'.$file;
+
+    @mkdir(dirname($path), recursive: true);
+
+    file_put_contents($path, $contents);
 }
