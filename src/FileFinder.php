@@ -27,7 +27,7 @@ class FileFinder extends FileViewFinder
      */
     protected function getPossibleViewFiles($name)
     {
-        // allows includes to be rendered on the fly.
+        // allows includes/components to be rendered on the fly.
         $ext = pathinfo($name)['extension'] ?? '';
 
         if ($ext) {

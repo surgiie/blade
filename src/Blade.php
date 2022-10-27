@@ -5,15 +5,20 @@ namespace Surgiie\Blade;
 use Closure;
 use Illuminate\Container\Container;
 use Illuminate\Contracts\Foundation\Application as FoundationApplication;
+use Illuminate\Contracts\View\Factory as ViewFactoryContract;
 use Illuminate\Events\Dispatcher;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\View\Engines\EngineResolver;
+use Illuminate\View\ViewFinderInterface;
 use SplFileInfo;
 use Surgiie\Blade\Exceptions\FileNotFoundException;
 use Surgiie\Blade\Exceptions\UndefinedVariableException;
 
 class Blade
 {
+    /**A static instance of the engine. */
+    protected static ?Blade $instance = null;
+
     /**
      * The render file instance.
      */
@@ -71,6 +76,20 @@ class Blade
     {
         $this->container = $container;
 
+        $this->container->bind(ViewFactoryContract::class, function () {
+            return $this->getFileFactory();
+        });
+
+        $this->container->bind('view', function () {
+            return $this->getFileFactory();
+        });
+
+        $this->container->bind(ViewFinderInterface::class, function () {
+            return $this->getFileFinder();
+        });
+
+        Container::setInstance($this->container);
+
         $this->filesystem = $filesystem;
 
         $this->makeCompiledDirectory();
@@ -80,6 +99,20 @@ class Blade
         $this->resolver->register(self::ENGINE_NAME, function () {
             return $this->getCompilerEngine();
         });
+
+        static::setInstance($this);
+    }
+
+    /**Set static Blade instance.*/
+    public function setInstance(Blade $blade)
+    {
+        static::$instance = $blade;
+    }
+
+    /**Get static Blade instance.*/
+    public static function getInstance(): Blade
+    {
+        return static::$instance;
     }
 
     /**Normalize a path for the appropriate OS/directory separator.*/
@@ -159,7 +192,7 @@ class Blade
     /**
      * Get the compiled path to where compiled files go.
      */
-    protected function getCompiledPath(): string
+    public function getCompiledPath(): string
     {
         return __DIR__.'/../.compiled';
     }

@@ -1,0 +1,11 @@
+name: {{ $name }}
+favorite_food: {{ $favoriteFood }}
+<x-alert type="error" message="Hello"/>
+<x-alert type="error" message="Good Bye"/>
+<x-example type="error" message="Hello Again"/>
+favorite_numbers:
+@php($count = 0)
+@while ($count < 3)
+    - '{{ $count }}'
+    @php($count ++)
+@endwhile
