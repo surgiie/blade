@@ -38,7 +38,7 @@ class AnonymousComponent extends Component
      */
     public function render()
     {
-        return $this->view;
+        return blade()->compile($this->view, $this->data);
     }
 
     /**

@@ -75,6 +75,7 @@ class Blade
     public function __construct(Container|FoundationApplication $container, Filesystem $filesystem)
     {
         $this->container = $container;
+        $this->filesystem = $filesystem;
 
         $this->container->bind(ViewFactoryContract::class, function () {
             return $this->getFileFactory();
@@ -90,8 +91,6 @@ class Blade
 
         Container::setInstance($this->container);
 
-        $this->filesystem = $filesystem;
-
         $this->makeCompiledDirectory();
 
         $this->resolver = $this->getEngineResolver();
@@ -100,7 +99,10 @@ class Blade
             return $this->getCompilerEngine();
         });
 
-        static::setInstance($this);
+        $instance = static::getInstance();
+        if (is_null($instance)) {
+            static::setInstance($this);
+        }
     }
 
     /**Set static Blade instance.*/
@@ -110,7 +112,7 @@ class Blade
     }
 
     /**Get static Blade instance.*/
-    public static function getInstance(): Blade
+    public static function getInstance(): Blade|null
     {
         return static::$instance;
     }
@@ -227,17 +229,19 @@ class Blade
     /**Compile a file and return the contents.*/
     public function compile(string $path, array $data): string
     {
-        $path = static::normalizePathForOS($path);
+        $real_path = realpath(static::normalizePathForOS($path));
 
-        if (! is_file($path)) {
+        if ($real_path === false || ! is_file($path)) {
             throw new FileNotFoundException("The $path file does not exist.");
         }
 
-        $info = new SplFileInfo($path);
+        $finder = $this->getFileFinder();
+
+        $info = new SplFileInfo($real_path);
 
         $factory = $this->getFileFactory();
 
-        $this->getFileFinder()->setPaths([dirname($info->getRealPath())]);
+        $finder->setPaths([dirname($info->getRealPath())]);
 
         $factory->addExtension($info->getExtension(), self::ENGINE_NAME);
 
@@ -248,6 +252,11 @@ class Blade
         $contents = $file->render();
 
         restore_error_handler();
+
+        // flush found files so that we ensure we dont load wrong file contents
+        // from the $this->view cache propety. May happen when compiling basename file
+        // paths.
+        $finder->flush();
 
         return $contents;
     }

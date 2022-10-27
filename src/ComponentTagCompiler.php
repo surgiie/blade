@@ -7,46 +7,38 @@ use InvalidArgumentException;
 
 class ComponentTagCompiler extends BladeComponentTagCompiler
 {
-    protected $classes = [];
-    // /**
-    //  * Guess the class name for the given component.
-    //  *
-    //  * @param  string  $component
-    //  * @return string
-    //  */
-    // public function guessClassName(string $component)
-    // {
-    //     $namespace = 'App\\'; // customize?
-
-    //     $class = $this->formatClassName($component);
-
-    //     return $namespace.'View\\Components\\'.$class;
-    // }
+    /**Loaded classes.*/
+    protected array $classes = [];
 
     /**
-     * Find the class for the given component using the registered namespaces.
+     * Get the component class for a given component alias.
      *
      * @param  string  $component
-     * @return string|null
+     * @return string
+     *
+     * @throws \InvalidArgumentException
      */
-    public function findClassByComponent(string $component)
+    public function componentClass(string $component)
     {
+        $component = str_replace('.', DIRECTORY_SEPARATOR, $component);
+
         if (array_key_exists($component, $this->classes)) {
             return $this->classes[$component];
         }
-        if (! file_exists($component.'.php')) {
-            throw new InvalidArgumentException(
-                "Unable to locate a class or file for component [{$component}.php]."
-            );
+
+        if (file_exists($componentPhpFile = $component.'.php')) {
+            $class = require_once "$componentPhpFile";
+
+            if (is_numeric($class) || ! class_exists($class)) {
+                throw new InvalidArgumentException(
+                    "File [{$component}.php] must return ::class constant."
+                );
+            }
+
+            return $this->classes[$component] = $class;
         }
 
-        require_once "$component.php";
-
-        $classes = get_declared_classes();
-        // need a way to extract user defined class from this
-        dd($classes);
-        $class = $classes[count($classes)];
-
-        return $this->classes[$component] = $class;
+        // base class will use anonymous component when a class doesnt exist.
+        return $component;
     }
 }
