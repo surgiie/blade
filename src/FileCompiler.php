@@ -51,7 +51,6 @@ class FileCompiler extends BladeCompiler
     protected function compileStatements($value)
     {
         $keywords = implode('|', $this->formatDirectives);
-
         // move all @ directives that are spaced/tabbed in to the start of the
         // file this helps preserve the location of the content after compile
         $value = preg_replace("/\\s+\@($keywords)/", PHP_EOL.'@$1', $value);
@@ -59,6 +58,8 @@ class FileCompiler extends BladeCompiler
         $value = preg_replace('/@(endcomponent)/', '@$1'.PHP_EOL, $value);
         // and a new line after @endComponentClass so the next line doesnt get merged to end of component file either.
         $value = preg_replace('/@(endComponentClass)(.*)/', '@$1'.PHP_EOL, $value);
+
+        $value = preg_replace('/@include(.*)/', '@include$1'.PHP_EOL, $value);
 
         return parent::compileStatements($value);
     }
@@ -108,7 +109,7 @@ class FileCompiler extends BladeCompiler
         }
 
         return (new ComponentTagCompiler(
-            $this->classComponentAliases, $this->classComponentNamespaces, $this
+            $this->path, $this->classComponentAliases, $this->classComponentNamespaces, $this
         ))->compile($value);
     }
 }

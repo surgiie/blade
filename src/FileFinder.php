@@ -27,9 +27,8 @@ class FileFinder extends FileViewFinder
      */
     protected function getPossibleViewFiles($name)
     {
-        // allows includes/components to be rendered on the fly.
+        // allows includes/components to be rendered on the fly if no extension is available for the file.
         $ext = pathinfo($name)['extension'] ?? '';
-
         if ($ext) {
             $this->addExtension($ext);
         }
@@ -51,6 +50,9 @@ class FileFinder extends FileViewFinder
         try {
             return parent::findInPaths($name, $paths);
         } catch (InvalidArgumentException) {
+            if (file_exists($name)) {
+                return $name;
+            }
             throw new InvalidArgumentException("File [{$name}] not found.");
         }
     }

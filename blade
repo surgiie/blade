@@ -1,0 +1,21 @@
+#!/usr/bin/env php
+
+<?php
+
+use Illuminate\Container\Container;
+use Illuminate\Filesystem\Filesystem;
+use Surgiie\Blade\Blade;
+
+require __DIR__.'/vendor/autoload.php';
+
+$container = new Container;
+
+$blade = new Blade($container, new Filesystem);
+
+$contents = $blade->compile($argv[1], [
+    'name' => 'Bob',
+    'message' => 'wtf',
+    'favoriteFood' => 'Pizza',
+]);
+
+file_put_contents(__DIR__.'/test.rendered', $contents);

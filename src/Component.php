@@ -17,7 +17,7 @@ abstract class Component extends BladeComponent
     {
         $factory->addNamespace(
             '__components',
-            $directory = Blade::getInstance()->getCompiledPath()
+            $directory = blade()->getCompiledPath()
         );
 
         if (! is_file($viewFile = $directory.'/'.sha1($contents).'.php')) {

@@ -11,6 +11,7 @@
 - Flush file finder after compile to ensure cached view property doesnt return wrong file contents @surgiie in https://github.com/surgiie/blade/pulls/1
 - Add `setInstance` and `getInstance` static methods on `Blade` by @surgiie in https://github.com/surgiie/blade/pulls/1
 - `blade()` helper that returns static instance by @surgiie in https://github.com/surgiie/blade/pulls/1
+- `@include` gets a new line implictly added to avoid merging with next line on files @surgiie in https://github.com/surgiie/blade/pulls/1
 
 ## [v0.1.0] - 2022-10-20
 
