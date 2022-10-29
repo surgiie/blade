@@ -72,7 +72,7 @@ class ComponentTagCompiler extends BladeComponentTagCompiler
         }
 
         if (array_key_exists($path, static::$componentToFileStack)) {
-            return  static::$componentToFileStack[$path];
+            return static::$componentToFileStack[$path];
         }
 
         if (file_exists($componentPhpFilePath = $path.'.php')) {

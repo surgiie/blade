@@ -19,6 +19,7 @@ class FileCompiler extends BladeCompiler
             // certain directives will get a space added to prevent the next line from being merged to the end of
             // the line, which is a side effect from php tag compilation.
             $line = preg_replace('/@include(.+)(?!\s+\n)$/', '@include$1 ', $line);
+            // todo <x- /> needs new line
             // lines that have a @ directive indented, should be moved to start of line
             // this prevents the compiled tag from pushing content further in then where it
             // actually is in the file being compiled.
@@ -26,8 +27,6 @@ class FileCompiler extends BladeCompiler
 
             $result[] = $line;
         }
-
-        dump(implode(PHP_EOL, $result));
 
         return parent::compileStatements(implode(PHP_EOL, $result));
     }
@@ -51,9 +50,13 @@ class FileCompiler extends BladeCompiler
             $component = AnonymousComponent::class;
         }
 
-        $parts = explode(PHP_EOL, parent::compileClassComponentOpening($component, $alias, $data, $hash));
-
+        $parts = explode(PHP_EOL, $opening = parent::compileClassComponentOpening($component, $alias, $data, $hash));
         [$path, $class] = ComponentTagCompiler::getComponentFilePath(str_replace("'", '', $alias));
+
+        // no alias/class means its an anonymous component.
+        if (empty($class)) {
+            return $opening;
+        }
 
         array_splice($parts, 1, 0, "<?php \$__env->requireComponentClass('$class', '$path') ?>");
 
