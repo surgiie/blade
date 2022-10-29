@@ -16,14 +16,6 @@ use Surgiie\Blade\Exceptions\UndefinedVariableException;
 
 class Blade
 {
-    /**A static instance of the engine. */
-    protected static ?Blade $instance = null;
-
-    /**
-     * The render file instance.
-     */
-    protected ?File $file = null;
-
     /**
      * Get the engine name for resolver registration.
      */
@@ -40,14 +32,17 @@ class Blade
     protected ?SplFileInfo $fileInfo = null;
 
     /**
+     * The file finder instance.
+     */
+    protected ?FileFinder $fileFinder = null;
+
+    /**
      * The file factory instance.
      */
     protected ?FileFactory $fileFactory = null;
 
-    /**
-     * The file finder instance.
-     */
-    protected ?FileFinder $fileFinder = null;
+    /**Whether cached files should get used.*/
+    protected static bool $useCachedFiles = true;
 
     /**
      * The engine resolver instance.
@@ -98,23 +93,18 @@ class Blade
         $this->resolver->register(self::ENGINE_NAME, function () {
             return $this->getCompilerEngine();
         });
-
-        $instance = static::getInstance();
-        if (is_null($instance)) {
-            static::setInstance($this);
-        }
     }
 
-    /**Set static Blade instance.*/
-    public function setInstance(Blade $blade)
+    /**Set whether cached files should be used or not. */
+    public static function useCachedCompiledFiles(bool $useCacheFiles)
     {
-        static::$instance = $blade;
+        static::$useCachedFiles = $useCacheFiles;
     }
 
-    /**Get static Blade instance.*/
-    public static function getInstance(): Blade|null
+    /**Get whether cached compiled files should be used or not. */
+    public static function shouldUseCachedCompiledFiles()
     {
-        return static::$instance;
+        return static::$useCachedFiles;
     }
 
     /**Normalize a path for the appropriate OS/directory separator.*/
@@ -237,9 +227,14 @@ class Blade
 
         $finder = $this->getFileFinder();
 
+        $finder->replaceNamespace('__components', $this->getCompiledPath());
+
         $info = new SplFileInfo($real_path);
 
         $factory = $this->getFileFactory();
+
+        // flush found files, so we're not returning files that match in path when using relative paths.
+        $finder->flush();
 
         $finder->setPaths([dirname($info->getRealPath())]);
 
@@ -252,11 +247,6 @@ class Blade
         $contents = $file->render();
 
         restore_error_handler();
-
-        // flush found files so that we ensure we dont load wrong file contents
-        // from the $this->view cache propety. May happen when compiling basename file
-        // paths.
-        $finder->flush();
 
         return $contents;
     }

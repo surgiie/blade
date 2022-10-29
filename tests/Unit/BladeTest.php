@@ -7,9 +7,9 @@ use Surgiie\Blade\Exceptions\FileNotFoundException;
 
 beforeEach(function () {
     $this->blade = new Blade(new Container, new Filesystem);
-    blade_tear_down();
+
+    blade_tear_down($this->blade);
 });
-afterEach(fn () => blade_tear_down());
 
 it('throws exception when file doesnt exist', function () {
     expect(function () {

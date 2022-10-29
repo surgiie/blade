@@ -7,11 +7,27 @@ use InvalidArgumentException;
 
 class ComponentTagCompiler extends BladeComponentTagCompiler
 {
-    /**Loaded classes.*/
-    protected array $classes = [];
-
     /**The file being compiled that contains components.*/
     protected string $path;
+
+    /**
+     * The component to file stack.
+     *
+     * @var array
+     */
+    protected static $componentToFileStack = [];
+
+    /**Register a component to file entry.*/
+    public static function newComponentToFile(string $component, string $file, string $class)
+    {
+        static::$componentToFileStack[$component] = [$file, $class];
+    }
+
+    /**Get a component to file entry.*/
+    public static function getComponentFilePath(string $component)
+    {
+        return static::$componentToFileStack[$component];
+    }
 
     /**
      * Create a new component tag compiler.
@@ -32,40 +48,45 @@ class ComponentTagCompiler extends BladeComponentTagCompiler
      */
     public function componentClass(string $component)
     {
+        // if component starts with -, meaning they used a <x-- for tag, we're using absolute path.
         if (str_starts_with($component, '-')) {
-            $component = ltrim($component, '-');
+            $path = ltrim($component, '-');
             $directory = DIRECTORY_SEPARATOR;
         } else {
+            $path = ltrim($component, '-');
             $directory = dirname($this->path).DIRECTORY_SEPARATOR;
         }
 
-        $ext = pathinfo($component)['extension'] ?? '';
+        $ext = pathinfo($path)['extension'] ?? '';
 
-        $component = str_replace('.', DIRECTORY_SEPARATOR, rtrim($component, ".$ext"));
+        $path = str_replace('.', DIRECTORY_SEPARATOR, rtrim($path, ".$ext"));
 
-        $component = $ext ? "$component.$ext" : $component;
+        $path = $ext ? "$path.$ext" : $path;
 
-        $component = $directory.$component;
+        $path = $directory.$path;
 
         // if a file with the what we assumed is a file extension doesnt exist.
         // then replace it with a directory separator as its likely a file without extension.
-        if (! file_exists($component)) {
-            $component = str_replace('.', DIRECTORY_SEPARATOR, $component);
-        }
-        if (array_key_exists($component, $this->classes)) {
-            return $this->classes[$component];
+        if (! file_exists($path)) {
+            $path = str_replace('.', DIRECTORY_SEPARATOR, $path);
         }
 
-        if (file_exists($componentPhpFile = $component.'.php')) {
-            $class = require_once "$componentPhpFile";
+        if (array_key_exists($path, static::$componentToFileStack)) {
+            return  static::$componentToFileStack[$path];
+        }
+
+        if (file_exists($componentPhpFilePath = $path.'.php')) {
+            $class = require_once "$componentPhpFilePath";
 
             if (is_numeric($class) || ! class_exists($class)) {
                 throw new InvalidArgumentException(
-                    "File [{$component}.php] must return ::class constant."
+                    "File [{$componentPhpFilePath}] must return ::class constant."
                 );
             }
 
-            return $this->classes[$component] = $class;
+            static::newComponentToFile($component, $componentPhpFilePath, $class);
+
+            return $class;
         }
         // base class will use anonymous component when a class doesnt exist.
         return $component;

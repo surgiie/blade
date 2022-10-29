@@ -8,18 +8,12 @@ if (! function_exists('blade')) {
     /**Return the blade instance.*/
     function blade()
     {
-        $blade = Blade::getInstance();
-
         $container = Container::getInstance();
 
         if (is_null($container)) {
             $container = new Container;
         }
 
-        if (is_null($blade)) {
-            $blade = new Blade($container, new Filesystem);
-        }
-
-        return $blade;
+        return new Blade($container, new Filesystem);
     }
 }

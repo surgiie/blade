@@ -1,6 +1,8 @@
 <?php
 
 use Illuminate\Filesystem\Filesystem;
+use Surgiie\Blade\Blade;
+use Surgiie\Blade\Component;
 use Surgiie\Blade\Tests\TestCase;
 
 /*
@@ -48,13 +50,17 @@ function blade_test_file_path(string $path = '')
     return rtrim(__DIR__.'/mock'.'/'.$path);
 }
 /**Cleanup steps.*/
-function blade_tear_down()
+function blade_tear_down(Blade $blade)
 {
     @mkdir($mockDir = blade_test_file_path());
 
     $fs = new Filesystem;
-
     $fs->deleteDirectory($mockDir, preserve: true);
+
+    $fs->deleteDirectory($blade->getCompiledPath());
+    // make sure we are on a fresh cache, to avoid collisions between tests
+    // if we happen to use the same component/file names.
+    Component::flushCache();
 }
 /**
  * Write a test file to testing directory.

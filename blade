@@ -15,7 +15,8 @@ $blade = new Blade($container, new Filesystem);
 $contents = $blade->compile($argv[1], [
     'name' => 'Bob',
     'message' => 'wtf',
-    'favoriteFood' => 'Pizza',
+    'dogs' => ['rex', 'charlie', 'steve'],
+    'favoriteFood' => 'not popp',
 ]);
 
-file_put_contents(__DIR__.'/test.rendered', $contents);
+file_put_contents(dirname($argv[1]).'/test.rendered', $contents);

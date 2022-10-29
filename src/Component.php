@@ -15,18 +15,15 @@ abstract class Component extends BladeComponent
      */
     protected function createBladeViewFromString($factory, $contents)
     {
-        $factory->addNamespace(
-            '__components',
-            $directory = blade()->getCompiledPath()
-        );
+        $directory = blade()->getCompiledPath();
 
-        if (! is_file($viewFile = $directory.'/'.sha1($contents).'.php')) {
+        if (! is_file($viewFile = $directory.'/'.sha1($contents).'.blade.php')) {
             if (! is_dir($directory)) {
                 mkdir($directory, 0755, true);
             }
             file_put_contents($viewFile, $contents);
         }
 
-        return '__components::'.basename($viewFile, '.php').'.php';
+        return '__components::'.basename($viewFile, '.blade.php').'.blade.php';
     }
 }

@@ -3,6 +3,7 @@
 namespace Surgiie\Blade;
 
 use Illuminate\View\Factory;
+use InvalidArgumentException;
 
 class FileFactory extends Factory
 {
@@ -12,6 +13,20 @@ class FileFactory extends Factory
     protected function normalizeName($name)
     {
         return $name;
+    }
+
+    /**Require the component class if needed.*/
+    public function requireComponentClass(string $class, string $path)
+    {
+        if (! class_exists($class)) {
+            $class = require_once $path;
+
+            if (is_numeric($class) || ! class_exists($class)) {
+                throw new InvalidArgumentException(
+                    "File [{$path}] must return ::class constant."
+                );
+            }
+        }
     }
 
     /**

@@ -8,69 +8,41 @@ use Illuminate\View\Compilers\BladeCompiler;
 class FileCompiler extends BladeCompiler
 {
     /**
-     * The directives that we should format to start of lines.
-     *
-     * @var array
-     */
-    protected $formatDirectives = [
-        'foreach',
-        'endforeach',
-        'component',
-        'endcomponent',
-        'empty',
-        'slot',
-        'endslot',
-        'php',
-        'endphp',
-        'if',
-        'elseif',
-        'else',
-        'endif',
-        'forelse',
-        'endforelse',
-        'for',
-        'endfor',
-        'while',
-        'endwhile',
-        'switch',
-        'default',
-        'case',
-        'endswitch',
-    ];
-
-    /**
-     * Compile and rendered php code can leave behind unwanted spacing which
-     * can be problematic for files where spacing has semantical meaning.
-     * This function compiles known blade directives so that they are shifted
-     * to the start of the line should they have leading whitespace. This
-     * keeps the compiled content from shifting spaces and ending up in
-     * places where it shouldnt be.
-     *
-     * @see https://www.php.net/manual/en/language.basic-syntax.phptags.php
+     * Compile the contents of the file.
      */
     protected function compileStatements($value)
     {
-        $keywords = implode('|', $this->formatDirectives);
-        // move all @ directives that are spaced/tabbed in to the start of the
-        // file this helps preserve the location of the content after compile
-        $value = preg_replace("/\\s+\@($keywords)/", PHP_EOL.'@$1', $value);
-        // add new line @endcomponent to ensure the next line isnt merged to the last line of component file.
-        $value = preg_replace('/@(endcomponent)/', '@$1'.PHP_EOL, $value);
-        // and a new line after @endComponentClass so the next line doesnt get merged to end of component file either.
-        $value = preg_replace('/@(endComponentClass)(.*)/', '@$1'.PHP_EOL, $value);
+        $result = [];
 
-        $value = preg_replace('/@include(.*)/', '@include$1'.PHP_EOL, $value);
+        $lines = explode(PHP_EOL, $value);
+        foreach ($lines as $line) {
+            // certain directives will get a space added to prevent the next line from being merged to the end of
+            // the line, which is a side effect from php tag compilation.
+            $line = preg_replace('/@include(.+)(?!\s+\n)$/', '@include$1 ', $line);
+            // lines that have a @ directive indented, should be moved to start of line
+            // this prevents the compiled tag from pushing content further in then where it
+            // actually is in the file being compiled.
+            $line = preg_replace("/^\s+(?<!@)@([^@]+)/", '@$1', $line);
 
-        return parent::compileStatements($value);
+            $result[] = $line;
+        }
+
+        dump(implode(PHP_EOL, $result));
+
+        return parent::compileStatements(implode(PHP_EOL, $result));
+    }
+
+    /**Determine if the file is expired.*/
+    public function isExpired($path)
+    {
+        return true;
+
+        return Blade::shouldUseCachedCompiledFiles() == false ? true : parent::isExpired($path);
     }
 
     /**
      * Compile a class component opening.
      *
-     * @param  string  $component
-     * @param  string  $alias
-     * @param  string  $data
-     * @param  string  $hash
      * @return string
      */
     public static function compileClassComponentOpening(string $component, string $alias, string $data, string $hash)
@@ -79,21 +51,13 @@ class FileCompiler extends BladeCompiler
             $component = AnonymousComponent::class;
         }
 
-        return parent::compileClassComponentOpening($component, $alias, $data, $hash);
-    }
+        $parts = explode(PHP_EOL, parent::compileClassComponentOpening($component, $alias, $data, $hash));
 
-    /**
-     * Determine if the given view is expired.
-     *
-     * We'll always return true here to ensure
-     * the compiler always compiles the file.
-     *
-     * @param  string  $path
-     * @return bool
-     */
-    public function isExpired($path)
-    {
-        return true;
+        [$path, $class] = ComponentTagCompiler::getComponentFilePath(str_replace("'", '', $alias));
+
+        array_splice($parts, 1, 0, "<?php \$__env->requireComponentClass('$class', '$path') ?>");
+
+        return implode(PHP_EOL, $parts);
     }
 
     /**

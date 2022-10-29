@@ -30,48 +30,30 @@ $contents = $blade->compile("/path/to/file", ['var'=>'example']);
 ```
 ### Using Components
 
-Blade `x-*` components are supported, but since this package is customized to allow compiling any file on the fly, it behaves slightly different:
+You may also use Blade `x-*` components in your file:
 
-* If the component path points to a php file, i.e `/example/foo/file.php` for a class based component, then the component class, must:
-    * Return the class constant so that the package can `require` and the class can be defined for the blade engine to `new` up and render.
-    * Extend `Surgiie\Blade\Component` class provided by this package.
 
-* Component tag names are treated as relative to the file being rendered, unless you use a double dash in the component tag name, i.e `<x--some.path>`, in which case the path will be treated as an absolute path, in this case `/some/path` instead of `some/path` which would be relative to whatever file you are compiling.
-
-here's an class component example example:
-
-```php
-<?php
-
-use Surgiie\Blade\Blade;
-use Illuminate\Container\Container;
-use Illuminate\Filesystem\Filesystem;
-
-/*
-
-/example.txt contents:
-<x-components.alert :message="var" />
-*/
-
-$blade = new Blade(new Container, $fs = new Filesystem)
-$contents = $blade->compile("/example.txt", ['var'=>'example']);
-
-// cleanup files when done compiling files
-$fs->deleteDirectory($blade->getCompiledPath());
-
+#### Anonymous Components
+```html
+<x-components.example data="Something" />
 ```
 
+Where `components.example` is a relative file  `components/example` to the file being compiled, this file can then contain any raw content and will be treated as a anonymous component.
 
+#### Class Components
+
+Class based components have no special difference in syntax:
+```html
+<x-components.example data="Something" />
+```
+
+The only difference here is that `components.example` is a relative `.php` file  to the file being compiled, in this case `components/example.php`.
+
+
+**Note** that since this package is customized to allow compiling any file path on the fly, the `.php` class component, must return the `::class` component, and extend the `\Surgiie\Blade\Component` class:
 
 ```php
-/*
 
-In "/":
-
-components/alert.php
-example.txt // the file being rendered.
-
-*/
 <?php
 
 namespace Components;
@@ -89,17 +71,21 @@ class Alert extends BladeComponent
 
     public function render()
     {
-        return blade()->compile('alert.txt', [
+        return blade()->compile('/your-component-file', [
             'message' => $this->message,
         ]);
     }
 }
 
-return Alert::class; // required
-
+return Alert::class; // required so the engine can require the class on the fly and remember it.
 ```
 
-#### Anonymous Copmponent
+#### Using absolute paths for components:
 
-In the above example of `<x-components.alert />`, if the `components/alert.php` file of the component path doesnt exist, it will assume a raw file of `components/alert` exists with the raw content for the
-file to be rendered as anonymous component.
+Components are resolved using a relative path from the filed being compiled, if you want to use an absolute path, use a double `-` in the component name:
+
+```html
+<x--components.example data="Something" />
+```
+
+This will resolve the path to look for the file to `/components/example` instead of `/<file-being-compiled-path>/components/example`.

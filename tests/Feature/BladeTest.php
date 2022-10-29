@@ -7,9 +7,8 @@ use Surgiie\Blade\Blade;
 beforeEach(function () {
     $this->blade = new Blade(new Container, new Filesystem);
 
-    blade_tear_down();
+    blade_tear_down($this->blade);
 });
-afterEach(fn () => blade_tear_down());
 
 it('can compile @foreach', function () {
     put_blade_test_file('example.yaml', <<<'EOL'
@@ -367,9 +366,9 @@ it('can compile blade x anonymous components via absolute path', function () {
     EOL);
 
     $path = ltrim(str_replace('/', '.', blade_test_file_path('component')).'.yaml', '.');
+
     put_blade_test_file('main.yaml', <<<"EOL"
     <x--$path :name='\$name' />
-    favorite_food: {{ \$favoriteFood }}
     family_info:
     @switch(\$oldest)
     @case(1)
@@ -389,7 +388,6 @@ it('can compile blade x anonymous components via absolute path', function () {
 
     expect($contents)->toBe(<<<'EOL'
     name: Bob
-    favorite_food: Pizza
     family_info:
         oldest_child: true
     EOL);
