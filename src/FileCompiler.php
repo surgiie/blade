@@ -16,10 +16,10 @@ class FileCompiler extends BladeCompiler
 
         $lines = explode(PHP_EOL, $value);
         foreach ($lines as $line) {
-            // certain directives will get a space added to prevent the next line from being merged to the end of
-            // the line, which is a side effect from php tag compilation.
-            $line = preg_replace('/@include(.+)(?!\s+\n)$/', '@include$1 ', $line);
-            // todo <x- /> needs new line
+            // certain directives will get a space added to prevent the next line from being
+            // merged to the end of the line, which is a side effect from php closing tag compilation.
+            $line = preg_replace('/(?<!@)@(include|endComponent)(.+)(?!\s+\n)$/', '@$1$2 __@BLADE_SPACE_ADDED@__', $line);
+            $line = preg_replace('/(?<!@)@endcomponent(?!\s+\n)$/', '@endcomponent __@BLADE_SPACE_ADDED@__', $line);
             // lines that have a @ directive indented, should be moved to start of line
             // this prevents the compiled tag from pushing content further in then where it
             // actually is in the file being compiled.
@@ -46,8 +46,8 @@ class FileCompiler extends BladeCompiler
      */
     public static function compileClassComponentOpening(string $component, string $alias, string $data, string $hash)
     {
-        if ($component == BladeAnonymousComponent::class) {
-            $component = AnonymousComponent::class;
+        if (str_replace("'", '', $component) == BladeAnonymousComponent::class) {
+            $component = "'".AnonymousComponent::class."'";
         }
 
         $parts = explode(PHP_EOL, $opening = parent::compileClassComponentOpening($component, $alias, $data, $hash));

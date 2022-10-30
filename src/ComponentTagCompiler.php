@@ -2,6 +2,7 @@
 
 namespace Surgiie\Blade;
 
+use Illuminate\View\AnonymousComponent as BladeAnonymousComponent;
 use Illuminate\View\Compilers\ComponentTagCompiler as BladeComponentTagCompiler;
 use InvalidArgumentException;
 
@@ -38,6 +39,13 @@ class ComponentTagCompiler extends BladeComponentTagCompiler
         parent::__construct($aliases, $namespaces, $compiler);
     }
 
+    protected function componentString(string $component, array $attributes)
+    {
+        $string = parent::componentString($component, $attributes);
+
+        return str_replace(BladeAnonymousComponent::class, AnonymousComponent::class, $string);
+    }
+
     /**
      * Get the component class for a given component alias.
      *
@@ -70,7 +78,6 @@ class ComponentTagCompiler extends BladeComponentTagCompiler
         if (! file_exists($path)) {
             $path = str_replace('.', DIRECTORY_SEPARATOR, $path);
         }
-
         if (array_key_exists($path, static::$componentToFileStack)) {
             return static::$componentToFileStack[$path];
         }
