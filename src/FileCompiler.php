@@ -12,7 +12,7 @@ class FileCompiler extends BladeCompiler
     use CompilesIncludes, CompilesComponents;
 
     /**The options stack for each statement.*/
-    protected static array $optionsStack = [];
+    protected array $optionsStack = [];
 
     /**
      * Compile Blade statements that start with "@".
@@ -30,7 +30,7 @@ class FileCompiler extends BladeCompiler
 
                 $match[0] = ltrim($match[0]);
 
-                static::$optionsStack[] = ['spacing' => $spacing];
+                $this->optionsStack = ['spacing' => $spacing];
 
                 return $this->compileStatement($match);
             }, $value

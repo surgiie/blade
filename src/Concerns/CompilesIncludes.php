@@ -4,9 +4,6 @@ namespace Surgiie\Blade\Concerns;
 
 trait CompilesIncludes
 {
-    /**The options stack for each statement.*/
-    protected static array $optionsStack = [];
-
     /**
      * Compile the include statements into valid PHP.
      */
@@ -14,7 +11,7 @@ trait CompilesIncludes
     {
         $expression = $this->stripParentheses($expression);
 
-        $options = array_pop(static::$optionsStack);
+        $options = array_pop($this->optionsStack);
 
         $options['type'] = 'include';
 
@@ -30,7 +27,7 @@ trait CompilesIncludes
     {
         $expression = $this->stripParentheses($expression);
 
-        $options = array_pop(static::$optionsStack);
+        $options = array_pop($this->optionsStack);
 
         $options['type'] = 'include';
 
@@ -46,7 +43,7 @@ trait CompilesIncludes
     {
         $expression = $this->stripParentheses($expression);
 
-        $options = array_pop(static::$optionsStack);
+        $options = array_pop($this->optionsStack);
 
         $options['type'] = 'include';
 
@@ -62,7 +59,7 @@ trait CompilesIncludes
     {
         $expression = $this->stripParentheses($expression);
 
-        $options = array_pop(static::$optionsStack);
+        $options = array_pop($this->optionsStack);
 
         $options['type'] = 'include';
 
@@ -81,7 +78,7 @@ trait CompilesIncludes
     {
         $expression = $this->stripParentheses($expression);
 
-        $options = array_pop(static::$optionsStack);
+        $options = array_pop($this->optionsStack);
 
         $options['type'] = 'include';
 
