@@ -12,7 +12,7 @@ class FileCompiler extends BladeCompiler
     use CompilesIncludes, CompilesComponents;
 
     /**The options stack for each statement.*/
-    protected array $optionsStack = [];
+    protected static array $optionsStack = [];
 
     /**
      * Compile Blade statements that start with "@".
@@ -24,12 +24,13 @@ class FileCompiler extends BladeCompiler
     {
         $compiled = preg_replace_callback(
             '/\h*(?:\#\#BEGIN-\COMPONENT\-CLASS\#\#)?\B@(@?\w+(?:::\w+)?)([ \t]*)(\( ( (?>[^()]+) | (?3) )* \))?/x', function ($match) {
-                $spacing = strlen($match[0]) - strlen(ltrim($match[0]));
-                $spacing = strlen(str_repeat(' ', $spacing));
+                $spacingTotal = strlen($match[0]) - strlen(ltrim($match[0]));
+
+                $spacing = str_repeat(' ', $spacingTotal);
 
                 $match[0] = ltrim($match[0]);
 
-                $this->optionsStack[] = ['spacing' => $spacing];
+                static::$optionsStack[] = ['spacing' => $spacing];
 
                 return $this->compileStatement($match);
             }, $value

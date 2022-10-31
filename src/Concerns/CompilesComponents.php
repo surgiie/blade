@@ -7,6 +7,9 @@ use Surgiie\Blade\ComponentTagCompiler;
 
 trait CompilesComponents
 {
+    /**The options stack for each statement.*/
+    protected static array $optionsStack = [];
+
     /**
      * Compile the end-component statements into valid PHP.
      *
@@ -29,6 +32,8 @@ trait CompilesComponents
         }
 
         $parts = explode(PHP_EOL, $opening = parent::compileClassComponentOpening($component, $alias, $data, $hash));
+
+        dump($parts, array_pop(static::$optionsStack));
         [$path, $class] = ComponentTagCompiler::getComponentFilePath(str_replace("'", '', $alias));
 
         // no alias/class means its an anonymous component.
