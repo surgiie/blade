@@ -6,15 +6,35 @@ use Illuminate\View\View;
 
 class File extends View
 {
-    /**
-     * Get the evaluated contents of the compiled file.
-     *
-     * @return string
-     */
-    protected function getContents()
+    /**Rendering options. */
+    protected array $renderOptions = [];
+
+    /**Set the rendering options.*/
+    public function setRenderOptions(array $options = [])
     {
-        // remove the trailing space placeholder that we added to work around
-        // php's closing tag encompassing trailing/next line.
-        return str_replace(' __@BLADE_SPACE_ADDED@__', '', parent::getContents());
+        $this->renderOptions = $options;
+    }
+
+    /**
+     * Get the string contents of the view.
+     *
+     * @throws \Throwable
+     */
+    public function render(callable $callback = null)
+    {
+        $result = [];
+        $lines = explode(PHP_EOL, parent::render($callback));
+
+        $spacing = $this->renderOptions['spacing'] ?? false;
+
+        foreach ($lines as $line) {
+            if ($spacing) {
+                $line = $spacing.$line;
+            }
+
+            $result[] = $line;
+        }
+
+        return implode(PHP_EOL, $result);
     }
 }

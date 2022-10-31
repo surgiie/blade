@@ -2,33 +2,63 @@
 
 namespace Surgiie\Blade;
 
+use Illuminate\Support\Str;
 use Illuminate\View\AnonymousComponent as BladeAnonymousComponent;
 use Illuminate\View\Compilers\BladeCompiler;
+use Surgiie\Blade\Concerns\CompilesIncludes;
 
 class FileCompiler extends BladeCompiler
 {
+    use CompilesIncludes;
+
+    /**The options stack for each statement.*/
+    protected array $optionsStack = [];
+
     /**
-     * Compile the contents of the file.
+     * Compile Blade statements that start with "@".
+     *
+     * @param  string  $value
+     * @return string
      */
     protected function compileStatements($value)
     {
+        $compiled = preg_replace_callback(
+            '/\h*\B@(@?\w+(?:::\w+)?)([ \t]*)(\( ( (?>[^()]+) | (?3) )* \))?/x', function ($match) {
+                $spacing = explode('@', $match[0])[0];
+
+                $match[0] = ltrim($match[0]);
+
+                $this->optionsStack[] = ['spacing' => $spacing];
+
+                return $this->compileStatement($match);
+            }, $value
+        );
+
         $result = [];
+        $lines = explode(PHP_EOL, $compiled);
 
-        $lines = explode(PHP_EOL, $value);
-        foreach ($lines as $line) {
-            // certain directives will get a space added to prevent the next line from being
-            // merged to the end of the line, which is a side effect from php closing tag compilation.
-            $line = preg_replace('/(?<!@)@(include|endComponent)(.+)(?!\s+\n)$/', '@$1$2 __@BLADE_SPACE_ADDED@__', $line);
-            $line = preg_replace('/(?<!@)@endcomponent(?!\s+\n)$/', '@endcomponent __@BLADE_SPACE_ADDED@__', $line);
-            // lines that have a @ directive indented, should be moved to start of line
-            // this prevents the compiled tag from pushing content further in then where it
-            // actually is in the file being compiled.
-            $line = preg_replace("/^\s+(?<!@)@([^@]+)/", '@$1', $line);
-
+        foreach ($lines as $index => $line) {
+            $cleanLine = trim($line);
+            $nextLine = trim($lines[$index + 1] ?? '');
+            // Handle adding a space next to close tags so that we prevent the next traling line from
+            // being encompassed, which is a side effect of close tag compilation. Howver.
+            // on some cases we want to avoid doing this such as for loops, for some reason, a new line is
+            // embedded when echoing items from a @foreach/@while.
+            // @see https://www.php.net/manual/en/language.basic-syntax.instruction-separation.php
+            if (
+                $cleanLine &&
+                ! Str::startsWith($cleanLine, ['<?php $__currentLoopData', '<?php while']) &&
+                Str::endsWith($cleanLine, ['?>']) &&
+                ! Str::startsWith($nextLine, ['<?php'])
+            ) {
+                $line = $line.' ';
+            }
             $result[] = $line;
         }
 
-        return parent::compileStatements(implode(PHP_EOL, $result));
+        $result = implode(PHP_EOL, $result);
+
+        return rtrim($result);
     }
 
     /**Determine if the file is expired.*/
@@ -36,7 +66,7 @@ class FileCompiler extends BladeCompiler
     {
         return true;
 
-        return Blade::shouldUseCachedCompiledFiles() == false ? true : parent::isExpired($path);
+        // return Blade::shouldUseCachedCompiledFiles() == false ? true : parent::isExpired($path);
     }
 
     /**
