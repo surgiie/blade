@@ -2,11 +2,16 @@
 
 namespace Surgiie\Blade\Concerns;
 
-use Illuminate\View\AnonymousComponent as BladeAnonymousComponent;
+use Illuminate\Support\Str;
+use Surgiie\Blade\AnonymousComponent;
 use Surgiie\Blade\ComponentTagCompiler;
+use Surgiie\Blade\FileCompiler;
 
 trait CompilesComponents
 {
+    /**The options for components passed down from start component compile. */
+    protected array $componentOptionsStack = [];
+
     /**
      * Compile the end-component statements into valid PHP.
      *
@@ -14,7 +19,13 @@ trait CompilesComponents
      */
     protected function compileEndComponent()
     {
-        return '<?php echo $__env->renderComponent(); ?> ';
+        $options = array_pop($this->componentOptionsStack);
+
+        $options['type'] = 'component';
+
+        $options = var_export($options, true);
+
+        return "<?php echo \$__env->renderComponent($options); ?> ";
     }
 
     /**
@@ -25,8 +36,18 @@ trait CompilesComponents
      */
     protected function compileComponent($expression)
     {
-        $compiled = parent::compileComponent($expression);
-        dump($compiled, array_pop($this->optionsStack));
+        [$component, $alias, $data] = str_contains($expression, ',')
+        ? array_map('trim', explode(',', trim($expression, '()'), 3)) + ['', '', '']
+        : [trim($expression, '()'), '', ''];
+        $hash = static::newComponentHash($component);
+
+        if (Str::contains($component, ['::class', '\\'])) {
+            $compiled = static::compileComponentClassOpening($component, $alias, $data, $hash, $this);
+        } else {
+            $compiled = "<?php \$__env->startComponent{$expression}; ?>";
+        }
+        // pass the options from stack down since render is done in `compileEndComponent`
+        $this->componentOptionsStack[] = array_pop($this->optionsStack);
 
         return $compiled;
     }
@@ -36,15 +57,15 @@ trait CompilesComponents
      *
      * @return string
      */
-    public static function compileClassComponentOpening(string $component, string $alias, string $data, string $hash)
+    public static function compileComponentClassOpening(string $component, string $alias, string $data, string $hash, FileCompiler $compiler)
     {
-        if (str_replace("'", '', $component) == BladeAnonymousComponent::class) {
-            $component = "'".AnonymousComponent::class."'";
+        [$path, $class] = ComponentTagCompiler::getComponentFilePath(str_replace("'", '', $alias), $compiler->getPath());
+
+        if ($path && $class == AnonymousComponent::class) {
+            $data = str_replace("'view' => $alias", "'view'=> '$path'", $data);
         }
 
         $parts = explode(PHP_EOL, $opening = parent::compileClassComponentOpening($component, $alias, $data, $hash));
-
-        [$path, $class] = ComponentTagCompiler::getComponentFilePath(str_replace("'", '', $alias));
 
         // no alias/class means its an anonymous component.
         if (empty($class)) {

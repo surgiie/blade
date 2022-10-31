@@ -3,11 +3,11 @@
 namespace Surgiie\Blade;
 
 use Illuminate\View\View;
-use Surgiie\Blade\Concerns\ModifiesContent;
+use Surgiie\Blade\Concerns\ModifiesRenderedContent;
 
 class File extends View
 {
-    use ModifiesContent;
+    use ModifiesRenderedContent;
 
     /**Rendering options. */
     protected array $renderOptions = [];
@@ -25,6 +25,6 @@ class File extends View
      */
     public function render(callable $callback = null)
     {
-        return $this->modifyContent(parent::render($callback), $this->renderOptions);
+        return $this->modifyRenderedContent(parent::render($callback), $this->renderOptions);
     }
 }

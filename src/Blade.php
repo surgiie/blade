@@ -223,7 +223,9 @@ class Blade
     public function compile(string $path, array $data): string
     {
         $path = static::normalizePathForOS($path);
+
         $path = $this->parseFilePath($path);
+
         $real_path = realpath($path);
 
         if ($real_path === false || ! is_file($path)) {

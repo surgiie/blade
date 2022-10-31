@@ -2,10 +2,10 @@
 
 namespace Surgiie\Blade\Concerns;
 
-trait ModifiesContent
+trait ModifiesRenderedContent
 {
     /**Modify the given content using the given options. */
-    protected function modifyContent(string $content, array $options = [])
+    protected function modifyRenderedContent(string $content, array $options = [])
     {
         $result = [];
         $lines = explode(PHP_EOL, $content);
@@ -17,7 +17,7 @@ trait ModifiesContent
                 $line = $spacing.$line;
             }
 
-            $result[] = $line;
+            $result[] = rtrim($line);
         }
 
         return implode(PHP_EOL, $result);

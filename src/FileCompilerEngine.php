@@ -29,7 +29,7 @@ class FileCompilerEngine extends CompilerEngine
             $this->handleViewException($e, $obLevel);
         }
 
-        return ob_get_clean();
+        return rtrim(ob_get_clean());
     }
 
     /**

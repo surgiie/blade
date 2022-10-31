@@ -5,7 +5,7 @@ namespace Surgiie\Blade\Concerns;
 trait ParsesFilePath
 {
     /**Parse a path name to filesystem path. */
-    protected function parseFilePath($path)
+    protected function parseFilePath(string $path)
     {
         if (str_starts_with($path, '-')) {
             $path = '/'.ltrim($path, '-');

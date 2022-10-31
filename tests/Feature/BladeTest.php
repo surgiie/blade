@@ -10,142 +10,178 @@ beforeEach(function () {
     blade_tear_down($this->blade);
 });
 
-// it('can compile @foreach', function () {
-//     put_blade_test_file('example.yaml', <<<'EOL'
-//     name: {{ $name }}
-//     favorite_food: {{ $favoriteFood }}
-//     pets:
-//         @foreach($dogs as $dog)
-//         - {{ $dog }}
-//         @endforeach
-//     EOL);
+it('can compile @foreach', function () {
+    put_blade_test_file('example.yaml', <<<'EOL'
+    name: {{ $name }}
+    favorite_food: {{ $favoriteFood }}
+    pets:
+        @foreach($dogs as $dog)
+        - {{ $dog }}
+        @endforeach
+    EOL);
 
-//     $contents = $this->blade->compile(blade_test_file_path('example.yaml'), [
-//         'name' => 'Bob',
-//         'favoriteFood' => 'Pizza',
-//         'dogs' => ['Rex', 'Charlie'],
-//     ]);
+    $contents = $this->blade->compile(blade_test_file_path('example.yaml'), [
+        'name' => 'Bob',
+        'favoriteFood' => 'Pizza',
+        'dogs' => ['Rex', 'Charlie'],
+    ]);
 
-//     expect($contents)->toBe(<<<'EOL'
-//     name: Bob
-//     favorite_food: Pizza
-//     pets:
-//         - Rex
-//         - Charlie
-//     EOL);
-// });
+    expect($contents)->toBe(<<<'EOL'
+    name: Bob
+    favorite_food: Pizza
+    pets:
+        - Rex
+        - Charlie
+    EOL);
+});
 
-// it('can compile @forelse', function () {
-//     put_blade_test_file('example.yaml', <<<'EOL'
-//     name: {{ $name }}
-//     favorite_food: {{ $favoriteFood }}
-//     pets:
-//         @forelse($dogs as $dog)
-//         - {{ $dog }}
-//         @empty
-//         - 'I have no dogs'
-//         @endforelse
-//     EOL);
+it('can compile @forelse', function () {
+    put_blade_test_file('example.yaml', <<<'EOL'
+    name: {{ $name }}
+    favorite_food: {{ $favoriteFood }}
+    pets:
+        @forelse($dogs as $dog)
+        - {{ $dog }}
+        @empty
+        - 'I have no dogs'
+        @endforelse
+    EOL);
 
-//     $contents = $this->blade->compile(blade_test_file_path('example.yaml'), [
-//         'name' => 'Bob',
-//         'favoriteFood' => 'Pizza',
-//         'dogs' => ['Rex', 'Charlie'],
-//     ]);
+    $contents = $this->blade->compile(blade_test_file_path('example.yaml'), [
+        'name' => 'Bob',
+        'favoriteFood' => 'Pizza',
+        'dogs' => ['Rex', 'Charlie'],
+    ]);
 
-//     expect($contents)->toBe(<<<'EOL'
-//     name: Bob
-//     favorite_food: Pizza
-//     pets:
-//         - Rex
-//         - Charlie
-//     EOL);
-// });
-// it('can compile @for', function () {
-//     put_blade_test_file('example.yaml', <<<'EOL'
-//     name: {{ $name }}
-//     favorite_food: {{ $favoriteFood }}
-//     favorite_numbers:
-//     @for ($i = 0; $i < 3; $i++)
-//         - '{{ $i }}'
-//     @endfor
-//     EOL);
+    expect($contents)->toBe(<<<'EOL'
+    name: Bob
+    favorite_food: Pizza
+    pets:
+        - Rex
+        - Charlie
+    EOL);
+});
+it('can compile @for', function () {
+    put_blade_test_file('example.yaml', <<<'EOL'
+    name: {{ $name }}
+    favorite_food: {{ $favoriteFood }}
+    favorite_numbers:
+    @for ($i = 0; $i < 3; $i++)
+        - '{{ $i }}'
+    @endfor
+    EOL);
 
-//     $contents = $this->blade->compile(blade_test_file_path('example.yaml'), [
-//         'name' => 'Bob',
-//         'favoriteFood' => 'Pizza',
-//     ]);
+    $contents = $this->blade->compile(blade_test_file_path('example.yaml'), [
+        'name' => 'Bob',
+        'favoriteFood' => 'Pizza',
+    ]);
 
-//     expect($contents)->toBe(<<<'EOL'
-//     name: Bob
-//     favorite_food: Pizza
-//     favorite_numbers:
-//         - '0'
-//         - '1'
-//         - '2'
-//     EOL);
-// });
+    expect($contents)->toBe(<<<'EOL'
+    name: Bob
+    favorite_food: Pizza
+    favorite_numbers:
+        - '0'
+        - '1'
+        - '2'
+    EOL);
+});
 
-// it('can compile @while', function () {
-//     put_blade_test_file('example.yaml', <<<'EOL'
-//     name: {{ $name }}
-//     favorite_food: {{ $favoriteFood }}
-//     favorite_numbers:
-//     @php($count = 0)
-//     @while ($count < 3)
-//         - '{{ $count }}'
-//         @php($count ++)
-//     @endwhile
-//     EOL);
+it('can compile @while', function () {
+    put_blade_test_file('example.yaml', <<<'EOL'
+    name: {{ $name }}
+    favorite_food: {{ $favoriteFood }}
+    favorite_numbers:
+    @php($count = 0)
+    @while ($count < 3)
+        - '{{ $count }}'
+        @php($count ++)
+    @endwhile
+    EOL);
 
-//     $contents = $this->blade->compile(blade_test_file_path('example.yaml'), [
-//         'name' => 'Bob',
-//         'favoriteFood' => 'Pizza',
-//     ]);
+    $contents = $this->blade->compile(blade_test_file_path('example.yaml'), [
+        'name' => 'Bob',
+        'favoriteFood' => 'Pizza',
+    ]);
 
-//     expect($contents)->toBe(<<<'EOL'
-//     name: Bob
-//     favorite_food: Pizza
-//     favorite_numbers:
-//         - '0'
-//         - '1'
-//         - '2'
-//     EOL);
-// });
+    expect($contents)->toBe(<<<'EOL'
+    name: Bob
+    favorite_food: Pizza
+    favorite_numbers:
+        - '0'
+        - '1'
+        - '2'
+    EOL);
+});
 
-// it('can compile @component', function () {
-//     put_blade_test_file('component.yaml', <<<'EOL'
-//     data: {{ $data }}
-//     EOL);
+it('can compile @component', function () {
+    put_blade_test_file('component.yaml', <<<'EOL'
+    data: {{ $data }}
+    EOL);
 
-//     put_blade_test_file('example.yaml', <<<'EOL'
-//     name: {{ $name }}
-//     favorite_food: {{ $favoriteFood }}
-//     @component('component.yaml', ['data'=>'foobar'])
-//     @endcomponent
-//     favorite_numbers:
-//     @php($count = 0)
-//     @while ($count < 3)
-//         - '{{ $count }}'
-//         @php($count ++)
-//     @endwhile
-//     EOL);
+    put_blade_test_file('example.yaml', <<<'EOL'
+    name: {{ $name }}
+    favorite_food: {{ $favoriteFood }}
+    @component('component.yaml', ['data'=>'foobar'])
+    @endcomponent
+    favorite_numbers:
+    @php($count = 0)
+    @while ($count < 3)
+        - '{{ $count }}'
+        @php($count ++)
+    @endwhile
+    EOL);
 
-//     $contents = $this->blade->compile(blade_test_file_path('example.yaml'), [
-//         'name' => 'Bob',
-//         'favoriteFood' => 'Pizza',
-//     ]);
+    $contents = $this->blade->compile(blade_test_file_path('example.yaml'), [
+        'name' => 'Bob',
+        'favoriteFood' => 'Pizza',
+    ]);
 
-//     expect($contents)->toBe(<<<'EOL'
-//     name: Bob
-//     favorite_food: Pizza
-//     data: foobar
-//     favorite_numbers:
-//         - '0'
-//         - '1'
-//         - '2'
-//     EOL);
-// });
+    expect($contents)->toBe(<<<'EOL'
+    name: Bob
+    favorite_food: Pizza
+    data: foobar
+    favorite_numbers:
+        - '0'
+        - '1'
+        - '2'
+    EOL);
+});
+
+it('can compile @component with nesting', function () {
+    put_blade_test_file('component.yaml', <<<'EOL'
+        data: {{ $data }}
+        nested: true
+    EOL);
+
+    put_blade_test_file('example.yaml', <<<'EOL'
+    name: {{ $name }}
+        favorite_food: {{ $favoriteFood }}
+    @component('component.yaml', ['data'=>'foobar'])
+    @endcomponent
+    favorite_numbers:
+    @php($count = 0)
+    @while ($count < 3)
+        - '{{ $count }}'
+        @php($count ++)
+    @endwhile
+    EOL);
+
+    $contents = $this->blade->compile(blade_test_file_path('example.yaml'), [
+        'name' => 'Bob',
+        'favoriteFood' => 'Pizza',
+    ]);
+
+    expect($contents)->toBe(<<<'EOL'
+    name: Bob
+        favorite_food: Pizza
+        data: foobar
+        nested: true
+    favorite_numbers:
+        - '0'
+        - '1'
+        - '2'
+    EOL);
+});
 // it('can compile @component via absolute path', function () {
 //     $path = blade_test_file_path('component.yaml');
 
@@ -327,50 +363,16 @@ beforeEach(function () {
 //     EOL);
 // });
 
-// it('can compile blade x anonymous components', function () {
-//     put_blade_test_file('component.yaml', <<<'EOL'
-//     name: {{ $name }}
-//     EOL);
-
-//     put_blade_test_file('main.yaml', <<<'EOL'
-//     <x-component.yaml :name='$name' />
-//     favorite_food: {{ $favoriteFood }}
-//     family_info:
-//     @switch($oldest)
-//     @case(1)
-//         oldest_child: true
-//         @break
-//     @case(2)
-//         oldest_child: false
-//         @break
-//     @endswitch
-//     EOL);
-
-//     $contents = $this->blade->compile(blade_test_file_path('main.yaml'), [
-//         'name' => 'Bob',
-//         'favoriteFood' => 'Pizza',
-//         'oldest' => true,
-//     ]);
-
-//     expect($contents)->toBe(<<<'EOL'
-//     name: Bob
-//     favorite_food: Pizza
-//     family_info:
-//         oldest_child: true
-//     EOL);
-// });
-
-it('can compile blade x anonymous components via absolute path', function () {
+it('can compile blade x anonymous components', function () {
     put_blade_test_file('component.yaml', <<<'EOL'
     name: {{ $name }}
     EOL);
 
-    $path = ltrim(str_replace('/', '.', blade_test_file_path('component')).'.yaml', '.');
-
-    put_blade_test_file('main.yaml', <<<"EOL"
-    <x--$path :name='\$name' />
+    put_blade_test_file('main.yaml', <<<'EOL'
+    <x-component.yaml :name='$name' />
+    favorite_food: {{ $favoriteFood }}
     family_info:
-    @switch(\$oldest)
+    @switch($oldest)
     @case(1)
         oldest_child: true
         @break
@@ -388,7 +390,41 @@ it('can compile blade x anonymous components via absolute path', function () {
 
     expect($contents)->toBe(<<<'EOL'
     name: Bob
+    favorite_food: Pizza
     family_info:
         oldest_child: true
     EOL);
 });
+
+// it('can compile blade x anonymous components via absolute path', function () {
+//     put_blade_test_file('component.yaml', <<<'EOL'
+//     name: {{ $name }}
+//     EOL);
+
+//     $path = ltrim(str_replace('/', '.', blade_test_file_path('component')).'.yaml', '.');
+
+//     put_blade_test_file('main.yaml', <<<"EOL"
+//     <x--$path :name='\$name' />
+//     family_info:
+//     @switch(\$oldest)
+//     @case(1)
+//         oldest_child: true
+//         @break
+//     @case(2)
+//         oldest_child: false
+//         @break
+//     @endswitch
+//     EOL);
+
+//     $contents = $this->blade->compile(blade_test_file_path('main.yaml'), [
+//         'name' => 'Bob',
+//         'favoriteFood' => 'Pizza',
+//         'oldest' => true,
+//     ]);
+
+//     expect($contents)->toBe(<<<'EOL'
+//     name: Bob
+//     family_info:
+//         oldest_child: true
+//     EOL);
+// });

@@ -30,7 +30,7 @@ class FileCompiler extends BladeCompiler
 
                 $match[0] = ltrim($match[0]);
 
-                $this->optionsStack = ['spacing' => $spacing];
+                $this->optionsStack[] = ['spacing' => $spacing];
 
                 return $this->compileStatement($match);
             }, $value
@@ -49,7 +49,7 @@ class FileCompiler extends BladeCompiler
             // @see https://www.php.net/manual/en/language.basic-syntax.instruction-separation.php
             if (
                 $cleanLine &&
-                ! Str::startsWith($cleanLine, ['<?php $__currentLoopData', '<?php while', 'case (']) &&
+                ! Str::startsWith($cleanLine, ['<?php $__currentLoopData', '<?php $__empty_', '<?php for', '<?php while', 'case (']) &&
                 Str::endsWith($cleanLine, ['?>']) &&
                 ! Str::startsWith($nextLine, ['<?php'])
             ) {

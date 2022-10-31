@@ -4,12 +4,12 @@ namespace Surgiie\Blade;
 
 use Illuminate\View\Factory;
 use InvalidArgumentException;
-use Surgiie\Blade\Concerns\ModifiesContent;
+use Surgiie\Blade\Concerns\ModifiesRenderedContent;
 use Surgiie\Blade\Concerns\ParsesFilePath;
 
 class FileFactory extends Factory
 {
-    use ParsesFilePath, ModifiesContent;
+    use ParsesFilePath, ModifiesRenderedContent;
 
     /**
      * Disable dot notation normalization.
@@ -78,15 +78,17 @@ class FileFactory extends Factory
     {
         $contents = parent::renderComponent();
 
-        return $this->modifyContent($contents, $options);
+        return $this->modifyRenderedContent($contents, $options);
     }
 
+    /*
     /**
      * Get the evaluated view contents for the given view.
      */
     public function make($view, $data = [], $mergeData = [], $options = [])
     {
         $view = $this->parseFilePath($view);
+
         $file = parent::make($view, $data, $mergeData);
 
         $file->setRenderOptions($options);

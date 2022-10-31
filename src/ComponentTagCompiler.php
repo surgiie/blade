@@ -28,9 +28,14 @@ class ComponentTagCompiler extends BladeComponentTagCompiler
     }
 
     /**Get a component to file entry.*/
-    public static function getComponentFilePath(string $component)
+    public static function getComponentFilePath(string $component, string $compilingPath)
     {
-        return static::$componentToFileStack[$component];
+        $path = static::$componentToFileStack[$component];
+        if ($path) {
+            return $path;
+        }
+        // if no saved path, compute if relative to the file being compiled.
+        return [dirname($compilingPath).DIRECTORY_SEPARATOR.$component, AnonymousComponent::class];
     }
 
     /**
