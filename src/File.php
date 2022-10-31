@@ -3,9 +3,12 @@
 namespace Surgiie\Blade;
 
 use Illuminate\View\View;
+use Surgiie\Blade\Concerns\ModifiesContent;
 
 class File extends View
 {
+    use ModifiesContent;
+
     /**Rendering options. */
     protected array $renderOptions = [];
 
@@ -22,19 +25,6 @@ class File extends View
      */
     public function render(callable $callback = null)
     {
-        $result = [];
-        $lines = explode(PHP_EOL, parent::render($callback));
-
-        $spacing = $this->renderOptions['spacing'] ?? false;
-
-        foreach ($lines as $line) {
-            if ($spacing) {
-                $line = $spacing.$line;
-            }
-
-            $result[] = $line;
-        }
-
-        return implode(PHP_EOL, $result);
+        return $this->modifyContent(parent::render($callback), $this->renderOptions);
     }
 }

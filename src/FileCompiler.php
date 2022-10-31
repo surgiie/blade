@@ -3,13 +3,13 @@
 namespace Surgiie\Blade;
 
 use Illuminate\Support\Str;
-use Illuminate\View\AnonymousComponent as BladeAnonymousComponent;
 use Illuminate\View\Compilers\BladeCompiler;
+use Surgiie\Blade\Concerns\CompilesComponents;
 use Surgiie\Blade\Concerns\CompilesIncludes;
 
 class FileCompiler extends BladeCompiler
 {
-    use CompilesIncludes;
+    use CompilesIncludes, CompilesComponents;
 
     /**The options stack for each statement.*/
     protected array $optionsStack = [];
@@ -23,8 +23,9 @@ class FileCompiler extends BladeCompiler
     protected function compileStatements($value)
     {
         $compiled = preg_replace_callback(
-            '/\h*\B@(@?\w+(?:::\w+)?)([ \t]*)(\( ( (?>[^()]+) | (?3) )* \))?/x', function ($match) {
-                $spacing = explode('@', $match[0])[0];
+            '/\h*(?:\#\#BEGIN-\COMPONENT\-CLASS\#\#)?\B@(@?\w+(?:::\w+)?)([ \t]*)(\( ( (?>[^()]+) | (?3) )* \))?/x', function ($match) {
+                $spacing = strlen($match[0]) - strlen(ltrim($match[0]));
+                $spacing = strlen(str_repeat(' ', $spacing));
 
                 $match[0] = ltrim($match[0]);
 
@@ -47,7 +48,7 @@ class FileCompiler extends BladeCompiler
             // @see https://www.php.net/manual/en/language.basic-syntax.instruction-separation.php
             if (
                 $cleanLine &&
-                ! Str::startsWith($cleanLine, ['<?php $__currentLoopData', '<?php while']) &&
+                ! Str::startsWith($cleanLine, ['<?php $__currentLoopData', '<?php while', 'case (']) &&
                 Str::endsWith($cleanLine, ['?>']) &&
                 ! Str::startsWith($nextLine, ['<?php'])
             ) {
@@ -65,32 +66,7 @@ class FileCompiler extends BladeCompiler
     public function isExpired($path)
     {
         return true;
-
         // return Blade::shouldUseCachedCompiledFiles() == false ? true : parent::isExpired($path);
-    }
-
-    /**
-     * Compile a class component opening.
-     *
-     * @return string
-     */
-    public static function compileClassComponentOpening(string $component, string $alias, string $data, string $hash)
-    {
-        if (str_replace("'", '', $component) == BladeAnonymousComponent::class) {
-            $component = "'".AnonymousComponent::class."'";
-        }
-
-        $parts = explode(PHP_EOL, $opening = parent::compileClassComponentOpening($component, $alias, $data, $hash));
-        [$path, $class] = ComponentTagCompiler::getComponentFilePath(str_replace("'", '', $alias));
-
-        // no alias/class means its an anonymous component.
-        if (empty($class)) {
-            return $opening;
-        }
-
-        array_splice($parts, 1, 0, "<?php \$__env->requireComponentClass('$class', '$path') ?>");
-
-        return implode(PHP_EOL, $parts);
     }
 
     /**

@@ -5,9 +5,12 @@ namespace Surgiie\Blade;
 use Illuminate\View\AnonymousComponent as BladeAnonymousComponent;
 use Illuminate\View\Compilers\ComponentTagCompiler as BladeComponentTagCompiler;
 use InvalidArgumentException;
+use Surgiie\Blade\Concerns\ParsesFilePath;
 
 class ComponentTagCompiler extends BladeComponentTagCompiler
 {
+    use ParsesFilePath;
+
     /**The file being compiled that contains components.*/
     protected string $path;
 
@@ -58,21 +61,14 @@ class ComponentTagCompiler extends BladeComponentTagCompiler
     {
         // if component starts with -, meaning they used a <x-- for tag, we're using absolute path.
         if (str_starts_with($component, '-')) {
-            $path = ltrim($component, '-');
             $directory = DIRECTORY_SEPARATOR;
         } else {
-            $path = ltrim($component, '-');
             $directory = dirname($this->path).DIRECTORY_SEPARATOR;
         }
 
-        $ext = pathinfo($path)['extension'] ?? '';
+        $path = $this->parseFilePath($component);
 
-        $path = str_replace('.', DIRECTORY_SEPARATOR, rtrim($path, ".$ext"));
-
-        $path = $ext ? "$path.$ext" : $path;
-
-        $path = $directory.$path;
-
+        $path = $directory.ltrim($path, DIRECTORY_SEPARATOR);
         // if a file with the what we assumed is a file extension doesnt exist.
         // then replace it with a directory separator as its likely a file without extension.
         if (! file_exists($path)) {

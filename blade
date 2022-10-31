@@ -13,10 +13,11 @@ $container = new Container;
 $blade = new Blade($container, new Filesystem);
 
 $contents = $blade->compile($argv[1], [
-    'name' => 'Bob',
     'message' => 'wtf',
     'dogs' => ['rex', 'charlie', 'steve'],
-    'favoriteFood' => 'not popp',
+    'name' => 'Bob',
+    'favoriteFood' => 'Pizza',
+    'oldest' => true,
 ]);
 
 file_put_contents(dirname($argv[1]).'/test.rendered', $contents);

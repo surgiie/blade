@@ -11,11 +11,14 @@ use Illuminate\Filesystem\Filesystem;
 use Illuminate\View\Engines\EngineResolver;
 use Illuminate\View\ViewFinderInterface;
 use SplFileInfo;
+use Surgiie\Blade\Concerns\ParsesFilePath;
 use Surgiie\Blade\Exceptions\FileNotFoundException;
 use Surgiie\Blade\Exceptions\UndefinedVariableException;
 
 class Blade
 {
+    use ParsesFilePath;
+
     /**
      * Get the engine name for resolver registration.
      */
@@ -219,12 +222,13 @@ class Blade
     /**Compile a file and return the contents.*/
     public function compile(string $path, array $data): string
     {
-        $real_path = realpath(static::normalizePathForOS($path));
+        $path = static::normalizePathForOS($path);
+        $path = $this->parseFilePath($path);
+        $real_path = realpath($path);
 
         if ($real_path === false || ! is_file($path)) {
             throw new FileNotFoundException("The $path file does not exist.");
         }
-
         $finder = $this->getFileFinder();
 
         $finder->replaceNamespace('__components', $this->getCompiledPath());
