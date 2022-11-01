@@ -47,11 +47,12 @@ class FileCompiler extends BladeCompiler
             // on some cases we want to avoid doing this such as for loops, for some reason, a new line is
             // embedded when echoing items from a @foreach/@while.
             // @see https://www.php.net/manual/en/language.basic-syntax.instruction-separation.php
+
             if (
-                $cleanLine &&
-                ! Str::startsWith($cleanLine, ['<?php $__currentLoopData', '<?php $__empty_', '<?php for', '<?php while', 'case (']) &&
+                ($cleanLine &&
+                ! Str::startsWith($cleanLine, ['<?php $__currentLoopData', '<?php else', '<?php $__empty_', '<?php for', '<?php while', 'case (']) &&
                 Str::endsWith($cleanLine, ['?>']) &&
-                ! Str::startsWith($nextLine, ['<?php'])
+                ! Str::startsWith($nextLine, ['<?php']))
             ) {
                 $line = $line.' ';
             }
@@ -59,6 +60,7 @@ class FileCompiler extends BladeCompiler
         }
 
         $result = implode(PHP_EOL, $result);
+        dump($result);
 
         return rtrim($result);
     }
