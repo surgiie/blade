@@ -58,9 +58,10 @@ function blade_tear_down(Blade $blade)
     $fs->deleteDirectory($mockDir, preserve: true);
 
     $fs->deleteDirectory($blade->getCompiledPath());
-    // make sure we are on a fresh cache, to avoid collisions between tests
-    // if we happen to use the same component/file names.
+    // make sure we are on a fresh cache/resolver, to avoid collisions between tests
+    // if we happen to use the same component/file names but different content.
     Component::flushCache();
+    Component::forgetComponentsResolver();
 }
 /**
  * Write a test file to testing directory.

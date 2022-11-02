@@ -2,7 +2,6 @@
 
 namespace Surgiie\Blade;
 
-use Illuminate\Support\Str;
 use Illuminate\View\Compilers\BladeCompiler;
 use Surgiie\Blade\Concerns\CompilesComponents;
 use Surgiie\Blade\Concerns\CompilesIncludes;
@@ -22,7 +21,7 @@ class FileCompiler extends BladeCompiler
      */
     protected function compileStatements($value)
     {
-        $compiled = preg_replace_callback(
+        return preg_replace_callback(
             '/\h*(?:\#\#BEGIN-\COMPONENT\-CLASS\#\#)?\B@(@?\w+(?:::\w+)?)([ \t]*)(\( ( (?>[^()]+) | (?3) )* \))?/x', function ($match) {
                 $spacingTotal = strlen($match[0]) - strlen(ltrim($match[0]));
 
@@ -35,34 +34,6 @@ class FileCompiler extends BladeCompiler
                 return $this->compileStatement($match);
             }, $value
         );
-
-        $result = [];
-        $lines = explode(PHP_EOL, $compiled);
-
-        foreach ($lines as $index => $line) {
-            $cleanLine = trim($line);
-            $nextLine = trim($lines[$index + 1] ?? '');
-            // Handle adding a space next to close tags so that we prevent the next traling line from
-            // being encompassed, which is a side effect of close tag compilation. Howver.
-            // on some cases we want to avoid doing this such as for loops, for some reason, a new line is
-            // embedded when echoing items from a @foreach/@while.
-            // @see https://www.php.net/manual/en/language.basic-syntax.instruction-separation.php
-
-            if (
-                ($cleanLine &&
-                ! Str::startsWith($cleanLine, ['<?php $__currentLoopData', '<?php else', '<?php $__empty_', '<?php for', '<?php while', 'case (']) &&
-                Str::endsWith($cleanLine, ['?>']) &&
-                ! Str::startsWith($nextLine, ['<?php']))
-            ) {
-                $line = $line.' ';
-            }
-            $result[] = $line;
-        }
-
-        $result = implode(PHP_EOL, $result);
-        dump($result);
-
-        return rtrim($result);
     }
 
     /**Determine if the file is expired.*/

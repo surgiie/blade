@@ -87,7 +87,7 @@ class FileFactory extends Factory
      */
     public function make($view, $data = [], $mergeData = [], $options = [])
     {
-        $view = $this->parseFilePath($view);
+        $view = static::parseFilePath($view);
 
         $file = parent::make($view, $data, $mergeData);
 

@@ -17,7 +17,15 @@ $contents = $blade->compile($argv[1], [
     'dogs' => ['rex', 'charlie', 'steve'],
     'name' => 'Bob',
     'favoriteFood' => 'Pizza',
-    'oldest' => true,
+    'oldest' => 1,
+    'serverName' => 'example.com',
+    'mainEndpoint' => 'example',
+    'accessLogPath' => '/var/log/nginx.access_log',
+    'apiEndpoint' => [
+        '/api/v1/foo',
+        '/api/v1/bar',
+        '/api/v1/baz',
+    ],
 ]);
 
 file_put_contents(dirname($argv[1]).'/test.rendered', $contents);

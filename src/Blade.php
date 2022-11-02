@@ -224,7 +224,7 @@ class Blade
     {
         $path = static::normalizePathForOS($path);
 
-        $path = $this->parseFilePath($path);
+        $path = static::parseFilePath($path);
 
         $real_path = realpath($path);
 

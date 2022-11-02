@@ -31,8 +31,13 @@ class ComponentTagCompiler extends BladeComponentTagCompiler
     public static function getComponentFilePath(string $component, string $compilingPath)
     {
         $path = static::$componentToFileStack[$component];
+
         if ($path) {
             return $path;
+        }
+        $parsed = static::parseFilePath($component);
+        if (str_starts_with($parsed, '/')) {
+            return $parsed;
         }
         // if no saved path, compute if relative to the file being compiled.
         return [dirname($compilingPath).DIRECTORY_SEPARATOR.$component, AnonymousComponent::class];
@@ -71,7 +76,7 @@ class ComponentTagCompiler extends BladeComponentTagCompiler
             $directory = dirname($this->path).DIRECTORY_SEPARATOR;
         }
 
-        $path = $this->parseFilePath($component);
+        $path = static::parseFilePath($component);
 
         $path = $directory.ltrim($path, DIRECTORY_SEPARATOR);
         // if a file with the what we assumed is a file extension doesnt exist.
