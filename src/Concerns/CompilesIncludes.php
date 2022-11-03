@@ -17,7 +17,7 @@ trait CompilesIncludes
 
         $options = var_export($options, true);
 
-        return "<?php echo \$__env->make({$expression}, \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']), [], $options)->render(); ?>";
+        return "<?php echo \$__env->make({$expression}, \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']), [], $options)->render(); ?> ";
     }
 
     /**
@@ -33,7 +33,7 @@ trait CompilesIncludes
 
         $options = var_export($options, true);
 
-        return "<?php if (\$__env->exists({$expression})) echo \$__env->make({$expression}, \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']),  [], $options)->render(); ?>";
+        return "<?php if (\$__env->exists({$expression})) echo \$__env->make({$expression}, \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']),  [], $options)->render(); ?> ";
     }
 
     /**
@@ -49,7 +49,7 @@ trait CompilesIncludes
 
         $options = var_export($options, true);
 
-        return "<?php echo \$__env->renderWhen($expression, \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']), [], $options); ?>";
+        return "<?php echo \$__env->renderWhen($expression, \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']), [], $options); ?> ";
     }
 
     /**
@@ -65,7 +65,7 @@ trait CompilesIncludes
 
         $options = var_export($options, true);
 
-        return "<?php echo \$__env->renderUnless($expression, \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']), [], $options); ?>";
+        return "<?php echo \$__env->renderUnless($expression, \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']), [], $options); ?> ";
     }
 
     /**
@@ -84,6 +84,6 @@ trait CompilesIncludes
 
         $options = var_export($options, true);
 
-        return "<?php echo \$__env->first({$expression}, \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']), [], $options)->render(); ?>";
+        return "<?php echo \$__env->first({$expression}, \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']), [], $options)->render(); ?> ";
     }
 }

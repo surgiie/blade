@@ -49,13 +49,14 @@ function blade_test_file_path(string $path = '')
 {
     return rtrim(__DIR__.'/mock'.'/'.$path);
 }
+
 /**Cleanup steps.*/
-function blade_tear_down(Blade $blade)
+function blade_tear_down(Blade $blade = null)
 {
     @mkdir($mockDir = blade_test_file_path());
 
     $fs = new Filesystem;
-    $fs->deleteDirectory($mockDir, preserve: true);
+    $fs->deleteDirectory($mockDir);
 
     $fs->deleteDirectory($blade->getCompiledPath());
     // make sure we are on a fresh cache/resolver, to avoid collisions between tests

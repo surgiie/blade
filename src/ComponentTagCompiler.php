@@ -21,6 +21,15 @@ class ComponentTagCompiler extends BladeComponentTagCompiler
      */
     protected static $componentToFileStack = [];
 
+    /**
+     * Create a new component tag compiler.
+     */
+    public function __construct(string $path, array $aliases = [], array $namespaces = [], ?FileCompiler $compiler = null)
+    {
+        $this->path = $path;
+        parent::__construct($aliases, $namespaces, $compiler);
+    }
+
     /**Register a component to file entry.*/
     public static function newComponentToFile(string $component, string $file, string $class)
     {
@@ -43,15 +52,7 @@ class ComponentTagCompiler extends BladeComponentTagCompiler
         return [dirname($compilingPath).DIRECTORY_SEPARATOR.$component, AnonymousComponent::class];
     }
 
-    /**
-     * Create a new component tag compiler.
-     */
-    public function __construct(string $path, array $aliases = [], array $namespaces = [], ?FileCompiler $compiler = null)
-    {
-        $this->path = $path;
-        parent::__construct($aliases, $namespaces, $compiler);
-    }
-
+    /**Generate a component string.*/
     protected function componentString(string $component, array $attributes)
     {
         $string = parent::componentString($component, $attributes);
@@ -61,11 +62,6 @@ class ComponentTagCompiler extends BladeComponentTagCompiler
 
     /**
      * Get the component class for a given component alias.
-     *
-     * @param  string  $component
-     * @return string
-     *
-     * @throws \InvalidArgumentException
      */
     public function componentClass(string $component)
     {
@@ -88,7 +84,7 @@ class ComponentTagCompiler extends BladeComponentTagCompiler
             return static::$componentToFileStack[$path];
         }
 
-        if (file_exists($componentPhpFilePath = $path.'.php')) {
+        if (is_file($componentPhpFilePath = $path.'.php') || is_file($componentPhpFilePath = $path) && str_ends_with($path, '.php')) {
             $class = require_once "$componentPhpFilePath";
 
             if (is_numeric($class) || ! class_exists($class)) {
@@ -101,7 +97,7 @@ class ComponentTagCompiler extends BladeComponentTagCompiler
 
             return $class;
         }
-        // base class will use anonymous component when a class doesnt exist.
+
         return $component;
     }
 }

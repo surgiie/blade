@@ -238,7 +238,6 @@ class Blade
         $info = new SplFileInfo($real_path);
 
         $factory = $this->getFileFactory();
-
         // flush found files, so we're not returning files that match in path when using relative paths.
         $finder->flush();
 

@@ -11,6 +11,11 @@ beforeEach(function () {
     blade_tear_down($this->blade);
 });
 
+afterAll(function () {
+    $fs = new Filesystem;
+    $fs->deleteDirectory(blade_test_file_path());
+});
+
 it('throws exception when file doesnt exist', function () {
     expect(function () {
         $this->blade->compile('/something', []);
@@ -33,6 +38,27 @@ it('compiles variables', function () {
     Bob
     EOL);
 });
+
+it('respects escaped directives', function () {
+    put_blade_test_file('example.txt', <<<'EOL'
+    {{$name}}
+    @@if(true)
+        example
+    @@endif
+    EOL);
+
+    $contents = $this->blade->compile(blade_test_file_path('example.txt'), [
+        'name' => 'Bob',
+    ]);
+
+    expect($contents)->toBe(<<<'EOL'
+    Bob
+    @if(true)
+        example
+    @endif
+    EOL);
+});
+
 it('compiles nested variables', function () {
     put_blade_test_file('example.txt', <<<'EOL'
     {{$name}}
