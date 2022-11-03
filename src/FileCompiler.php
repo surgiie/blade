@@ -3,63 +3,60 @@
 namespace Surgiie\Blade;
 
 use Illuminate\View\Compilers\BladeCompiler;
+use Surgiie\Blade\Concerns\CompilesComponents;
+use Surgiie\Blade\Concerns\CompilesIncludes;
 
 class FileCompiler extends BladeCompiler
 {
-    /**
-     * The directives that we should format to start of lines.
-     *
-     * @var array
-     */
-    protected $formatDirectives = [
-        'foreach',
-        'endforeach',
-        'empty',
-        'if',
-        'elseif',
-        'else',
-        'endif',
-        'forelse',
-        'endforelse',
-        'for',
-        'endfor',
-        'while',
-        'endwhile',
-        'switch',
-        'default',
-        'case',
-        'endswitch',
-    ];
+    use CompilesIncludes, CompilesComponents;
+
+    /**The options stack for each statement.*/
+    protected array $optionsStack = [];
 
     /**
-     * Compile and rendered php code can leave behind unwanted spacing which
-     * can be problematic for files where spacing has semantical meaning.
-     * This function compiles known blade directives so that they are shifted
-     * to the start of the line should they have leading whitespace.
+     * Compile Blade statements that start with "@".
      *
-     * @see https://www.php.net/manual/en/language.basic-syntax.phptags.php
+     * @param  string  $value
+     * @return string
      */
     protected function compileStatements($value)
     {
-        $keywords = implode('|', $this->formatDirectives);
+        return preg_replace_callback(
+            '/\h*(?:\#\#BEGIN-\COMPONENT\-CLASS\#\#)?\B@(@?\w+(?:::\w+)?)([ \t]*)(\( ( (?>[^()]+) | (?3) )* \))?/x', function ($match) {
+                $spacingTotal = strlen($match[0]) - strlen(ltrim($match[0]));
 
-        $value = preg_replace("/\\s+\@($keywords)/", "\n@$1", $value);
+                $spacing = str_repeat(' ', $spacingTotal);
 
-        return parent::compileStatements($value);
+                $match[0] = ltrim($match[0]);
+
+                $this->optionsStack[] = ['spacing' => $spacing];
+
+                return $this->compileStatement($match);
+            }, $value
+        );
+    }
+
+    /**Determine if the file is expired.*/
+    public function isExpired($path)
+    {
+        return true;
+        // return Blade::shouldUseCachedCompiledFiles() == false ? true : parent::isExpired($path);
     }
 
     /**
-     * Determine if the given view is expired.
+     * Compile the component tags.
      *
-     * We'll always return true here to ensure
-     * the compiler always compiles the file.
-     *
-     * @param  string  $path
-     * @return bool
+     * @param  string  $value
+     * @return string
      */
-    public function isExpired($path)
+    protected function compileComponentTags($value)
     {
-        // ensures that compiler compiles the file always
-        return true;
+        if (! $this->compilesComponentTags) {
+            return $value;
+        }
+
+        return (new ComponentTagCompiler(
+            $this->path, $this->classComponentAliases, $this->classComponentNamespaces, $this
+        ))->compile($value);
     }
 }

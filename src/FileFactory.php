@@ -3,15 +3,97 @@
 namespace Surgiie\Blade;
 
 use Illuminate\View\Factory;
+use InvalidArgumentException;
+use Surgiie\Blade\Concerns\ModifiesRenderedContent;
+use Surgiie\Blade\Concerns\ParsesFilePath;
 
 class FileFactory extends Factory
 {
+    use ParsesFilePath, ModifiesRenderedContent;
+
     /**
      * Disable dot notation normalization.
      */
     protected function normalizeName($name)
     {
         return $name;
+    }
+
+    /**Require the component class if needed.*/
+    public function requireComponentClass(string $class, string $path)
+    {
+        if (! class_exists($class)) {
+            $class = require_once $path;
+
+            if (is_numeric($class) || ! class_exists($class)) {
+                throw new InvalidArgumentException(
+                    "File [{$path}] must return ::class constant."
+                );
+            }
+        }
+    }
+
+    /**
+     * Get the first view that actually exists from the given list.
+     */
+    public function first(array $views, $data = [], $mergeData = [], $options = [])
+    {
+        $file = parent::first($views, $data, $mergeData);
+
+        $file->setRenderOptions($options);
+
+        return $file;
+    }
+
+    /**
+     * Get the rendered content of the view based on a given condition.
+     */
+    public function renderWhen($condition, $view, $data = [], $mergeData = [], $options = [])
+    {
+        if (! $condition) {
+            return '';
+        }
+
+        $file = $this->make($view, $this->parseData($data), $mergeData);
+
+        $file->setRenderOptions($options);
+
+        return $file->render();
+    }
+
+    /**
+     * Get the rendered content of the view based on the negation of a given condition.
+     */
+    public function renderUnless($condition, $view, $data = [], $mergeData = [], $options = [])
+    {
+        return $this->renderWhen(! $condition, $view, $data, $mergeData, $options);
+    }
+
+    /**
+     * Render the current component.
+     *
+     * @return string
+     */
+    public function renderComponent(?array $options = [])
+    {
+        $contents = parent::renderComponent();
+
+        return $this->modifyRenderedContent($contents, $options);
+    }
+
+    /*
+    /**
+     * Get the evaluated view contents for the given view.
+     */
+    public function make($view, $data = [], $mergeData = [], $options = [])
+    {
+        $view = static::parseFilePath($view);
+
+        $file = parent::make($view, $data, $mergeData);
+
+        $file->setRenderOptions($options);
+
+        return $file;
     }
 
     /**

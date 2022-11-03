@@ -4,115 +4,88 @@ use Illuminate\Container\Container;
 use Illuminate\Filesystem\Filesystem;
 use Surgiie\Blade\Blade;
 use Surgiie\Blade\Exceptions\FileNotFoundException;
-use Surgiie\Blade\Exceptions\UndefinedVariableException;
 
-beforeEach(fn () => blade_tear_down());
-afterEach(fn () => blade_tear_down());
+beforeEach(function () {
+    $this->blade = new Blade(new Container, new Filesystem);
+
+    blade_tear_down($this->blade);
+});
+
+afterAll(function () {
+    $fs = new Filesystem;
+    $fs->deleteDirectory(blade_test_file_path());
+});
 
 it('throws exception when file doesnt exist', function () {
     expect(function () {
-        $blade = new Blade(new Container, new Filesystem);
-        $blade->compile('/something', []);
+        $this->blade->compile('/something', []);
     })->toThrow(FileNotFoundException::class);
 });
 
-it('it can compile file', function () {
-    put_blade_test_file('example.yaml', <<<'EOL'
-    name: {{ $name }}
-    favorite_food: {{ $favoriteFood }}
-    pets:
-        @foreach($dogs as $dog)
-        - {{ $dog }}
-        @endforeach
-    contact_info:
-        phone: 1234567890
-        @if($includeAddress)
-        street_info: 123 Lane.
-        @endif
+it('compiles variables', function () {
+    put_blade_test_file('example.txt', <<<'EOL'
+    {{$relationship}}
+    {{$name}}
     EOL);
 
-    $blade = new Blade(new Container, new Filesystem);
-
-    $contents = $blade->compile(blade_test_file_path('example.yaml'), [
+    $contents = $this->blade->compile(blade_test_file_path('example.txt'), [
+        'relationship' => 'Uncle',
         'name' => 'Bob',
-        'favoriteFood' => 'Pizza',
-        'includeAddress' => true,
-        'dogs' => ['Rex', 'Charlie'],
     ]);
 
     expect($contents)->toBe(<<<'EOL'
-    name: Bob
-    favorite_food: Pizza
-    pets:
-        - Rex
-        - Charlie
-    contact_info:
-        phone: 1234567890
-        street_info: 123 Lane.
+    Uncle
+    Bob
     EOL);
 });
 
-it('throws exception when variables are missing', function () {
-    expect(function () {
-        put_blade_test_file('example.conf', <<<'EOL'
-        server {
-            server_name   {{$serverName}};
-            access_log   {{$accessLogPath}}  main;
-            location /{{$mainEndpoint}} {
-                @if($production ?? false)
-                root /data/www/production
-                @else
-                root /data/www/staging
-                @endif
-            }
-            @foreach($apiEndpoint as $endpoint)
-            location {{$endpoint}} {
-                proxy_pass  api.com{{$endpoint}};
-            }
-            @endforeach
-        }
-        EOL);
-
-        $blade = new Blade(new Container, new Filesystem);
-        $blade->compile(blade_test_file_path('example.conf'), []);
-    })->toThrow(UndefinedVariableException::class);
-});
-
-it('it can include file', function () {
-    put_blade_test_file('main.yaml', <<<'EOL'
-    name: {{ $name }}
-    favorite_food: {{ $favoriteFood }}
-    pets:
-        @foreach($dogs as $dog)
-        - {{ $dog }}
-        @endforeach
-    @include('include.yaml')
-    EOL);
-    put_blade_test_file('include.yaml', <<<'EOL'
-    contact_info:
-        phone: 1234567890
-        @if($includeAddress)
-        street_info: 123 Lane.
-        @endif
+it('respects escaped directives', function () {
+    put_blade_test_file('example.txt', <<<'EOL'
+    {{$name}}
+    @@if(true)
+        example
+    @@endif
     EOL);
 
-    $blade = new Blade(new Container, new Filesystem);
-
-    $contents = $blade->compile(blade_test_file_path('main.yaml'), [
+    $contents = $this->blade->compile(blade_test_file_path('example.txt'), [
         'name' => 'Bob',
-        'favoriteFood' => 'Pizza',
-        'includeAddress' => true,
-        'dogs' => ['Rex', 'Charlie'],
     ]);
 
     expect($contents)->toBe(<<<'EOL'
-    name: Bob
-    favorite_food: Pizza
-    pets:
-        - Rex
-        - Charlie
-    contact_info:
-        phone: 1234567890
-        street_info: 123 Lane.
+    Bob
+    @if(true)
+        example
+    @endif
+    EOL);
+});
+
+it('compiles nested variables', function () {
+    put_blade_test_file('example.txt', <<<'EOL'
+    {{$name}}
+        {{$relationship}}
+    EOL);
+
+    $contents = $this->blade->compile(blade_test_file_path('example.txt'), [
+        'relationship' => 'Uncle',
+        'name' => 'Bob',
+    ]);
+
+    expect($contents)->toBe(<<<'EOL'
+    Bob
+        Uncle
+    EOL);
+});
+
+it('escapes variable html', function () {
+    put_blade_test_file('example.txt', <<<'EOL'
+    {{$html}}
+    EOL);
+
+    $contents = $this->blade->compile(blade_test_file_path('example.txt'), [
+        'html' => '<script>alert("foo")</script>',
+    ]);
+
+    expect($contents)->toBe(<<<'EOL'
+    &lt;script&gt;alert(&quot;foo&quot;)&lt;/script&gt;
     EOL);
 });
