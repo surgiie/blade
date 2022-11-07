@@ -19,13 +19,17 @@ use Surgiie\Blade\Blade;
 use Illuminate\Container\Container;
 use Illuminate\Filesystem\Filesystem;
 
+$fs = new Filesystem;
 $blade = new Blade(
     container: new Container,
-    filesystem: new Filesystem,
+    filesystem: $fs,
 );
 
 // use absolute path to file
 $contents = $blade->compile("/path/to/file", ['var'=>'example']);
+
+// if you want to clean up cached/compiled files, consider running:
+$fs->deleteDirectory($blade->getCompiledPath());
 
 ```
 ### Using Components
