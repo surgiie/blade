@@ -1,6 +1,11 @@
 # Release Notes
 
-## [Unreleased](https://github.com/surgiie/blade/compare/v0.2.0...master)
+## [Unreleased](https://github.com/surgiie/blade/compare/v0.3.0...master)
+## [v0.3.0] - 2022-11-07
+
+### Added
+
+- Allow compile path to be set via new `setCompilePath` method by @surgiie https://github.com/surgiie/blade/pulls/2
 ## [v0.2.0] - 2022-10-26
 
 ### Added
