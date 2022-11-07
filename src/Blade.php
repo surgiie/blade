@@ -24,6 +24,9 @@ class Blade
      */
     public const ENGINE_NAME = 'blade';
 
+    /**Path to compiled files.*/
+    protected string $compiledPath;
+
     /**
      * The filesystem instance.
      */
@@ -70,10 +73,12 @@ class Blade
     /**
      * Construct a new Blade instance and configure engine.
      */
-    public function __construct(Container|FoundationApplication $container, Filesystem $filesystem)
+    public function __construct(Container|FoundationApplication $container, Filesystem $filesystem, string $compiledPath = null)
     {
         $this->container = $container;
         $this->filesystem = $filesystem;
+
+        $this->compiledPath = $compiledPath ?: __DIR__.'/../.compiled';
 
         $this->container->bind(ViewFactoryContract::class, function () {
             return $this->getFileFactory();
@@ -130,6 +135,14 @@ class Blade
         }
 
         return $this->fileFinder = new FileFinder($this->filesystem, []);
+    }
+
+    /**Set the compiled path.*/
+    public function setCompiledPath(string $path)
+    {
+        $this->compiledPath = $path;
+
+        return $this;
     }
 
     /**
@@ -189,7 +202,7 @@ class Blade
      */
     public function getCompiledPath(): string
     {
-        return __DIR__.'/../.compiled';
+        return $this->compiledPath;
     }
 
     /**
