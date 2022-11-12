@@ -4,9 +4,13 @@ namespace Surgiie\Blade\Concerns;
 
 trait ParsesFilePath
 {
-    /**Parse a path name to filesystem path. */
+    /**
+     * Parse a path name to filesystem path for compile.
+     * This may be a component path as well.
+     */
     protected static function parseFilePath(string $path)
     {
+        // component paths via absolute path <x--*>
         if (str_starts_with($path, '-')) {
             $path = '/'.ltrim($path, '-');
         }
