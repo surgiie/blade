@@ -1,7 +1,7 @@
 # Release Notes
 
 ## [Unreleased](https://github.com/surgiie/blade/compare/v0.4.0...master)
-## [v0.4.0] - 2022-11-07
+## [v0.4.0] - 2022-11-12
 
 ### Changed
 
