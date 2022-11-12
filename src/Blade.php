@@ -239,22 +239,27 @@ class Blade
 
         $path = static::parseFilePath($path);
 
-        $real_path = realpath($path);
-
-        if ($real_path === false || ! is_file($path)) {
+        if (! is_file($path)) {
             throw new FileNotFoundException("The $path file does not exist.");
         }
+
         $finder = $this->getFileFinder();
 
         $finder->replaceNamespace('__components', $this->getCompiledPath());
 
-        $info = new SplFileInfo($real_path);
+        $info = new SplFileInfo($path);
 
         $factory = $this->getFileFactory();
         // flush found files, so we're not returning files that match in path when using relative paths.
         $finder->flush();
 
-        $finder->setPaths([dirname($info->getRealPath())]);
+        $realPath = dirname($info->getRealPath());
+        // dont use realpath on phar file paths as it will always be false.
+        if (str_starts_with($path, 'phar://')) {
+            $realPath = dirname($path);
+        }
+
+        $finder->setPaths([$realPath]);
 
         $factory->addExtension($info->getExtension(), self::ENGINE_NAME);
 
