@@ -1,6 +1,11 @@
 # Release Notes
 
-## [Unreleased](https://github.com/surgiie/blade/compare/v0.4.0...master)
+## [Unreleased](https://github.com/surgiie/blade/compare/v0.5.0...master)
+## [v0.5.0] - 2022-11-12
+
+### Changed
+
+- Fix `parseFilePath` trait function so that it returns computed path only when file exists by @surgiie https://github.com/surgiie/blade/pulls/4
 ## [v0.4.0] - 2022-11-12
 
 ### Changed
