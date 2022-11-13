@@ -1,6 +1,12 @@
 # Release Notes
 
-## [Unreleased](https://github.com/surgiie/blade/compare/v0.3.0...master)
+## [Unreleased](https://github.com/surgiie/blade/compare/v0.4.0...master)
+## [v0.4.0] - 2022-11-12
+
+### Changed
+
+- Do not use `realpath` when dealing with `phar://` file paths. @surgiie https://github.com/surgiie/blade/pulls/3
+
 ## [v0.3.0] - 2022-11-07
 
 ### Added
