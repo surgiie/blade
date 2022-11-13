@@ -10,17 +10,19 @@ trait ParsesFilePath
      */
     protected static function parseFilePath(string $path)
     {
+        $computedPath = $path;
+
         // component paths via absolute path <x--*>
         if (str_starts_with($path, '-')) {
-            $path = '/'.ltrim($path, '-');
+            $computedPath = '/'.ltrim($path, '-');
         }
 
-        $ext = pathinfo($path)['extension'] ?? '';
+        $ext = pathinfo($computedPath)['extension'] ?? '';
 
-        $path = str_replace('.', DIRECTORY_SEPARATOR, str_replace(".$ext", '', $path));
+        $computedPath = str_replace('.', DIRECTORY_SEPARATOR, str_replace(".$ext", '', $computedPath));
 
-        $path = $ext ? "$path.$ext" : $path;
+        $computedPath = $ext ? "$computedPath.$ext" : $computedPath;
 
-        return $path;
+        return is_file($computedPath) ? $computedPath : $path;
     }
 }
