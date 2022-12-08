@@ -1,6 +1,12 @@
 # Release Notes
 
-## [Unreleased](https://github.com/surgiie/blade/compare/v0.5.0...master)
+## [Unreleased](https://github.com/surgiie/blade/compare/v0.6.0...master)
+## [v0.6.0] - 2022-12-07
+
+### Changed
+
+- Fix `isExpired` not utilizing static function
+
 ## [v0.5.0] - 2022-11-12
 
 ### Changed
