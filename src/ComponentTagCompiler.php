@@ -5,11 +5,11 @@ namespace Surgiie\Blade;
 use Illuminate\View\AnonymousComponent as BladeAnonymousComponent;
 use Illuminate\View\Compilers\ComponentTagCompiler as BladeComponentTagCompiler;
 use InvalidArgumentException;
-use Surgiie\Blade\Concerns\ParsesFilePath;
+use Surgiie\Blade\Concerns\ParsesComponentFilePath;
 
 class ComponentTagCompiler extends BladeComponentTagCompiler
 {
-    use ParsesFilePath;
+    use ParsesComponentFilePath;
 
     /**The file being compiled that contains components.*/
     protected string $path;
@@ -44,7 +44,8 @@ class ComponentTagCompiler extends BladeComponentTagCompiler
         if ($path) {
             return $path;
         }
-        $parsed = static::parseFilePath($component, isComponentPath: true);
+        
+        $parsed = static::parseComponentPath($component);
         if (str_starts_with($parsed, '/')) {
             return $parsed;
         }
@@ -72,7 +73,7 @@ class ComponentTagCompiler extends BladeComponentTagCompiler
             $directory = dirname($this->path).DIRECTORY_SEPARATOR;
         }
 
-        $path = static::parseFilePath($component, isComponentPath: true);
+        $path = static::parseComponentPath($component);
 
         $path = $directory.ltrim($path, DIRECTORY_SEPARATOR);
         // if a file with the what we assumed is a file extension doesnt exist.

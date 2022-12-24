@@ -11,14 +11,11 @@ use Illuminate\Filesystem\Filesystem;
 use Illuminate\View\Engines\EngineResolver;
 use Illuminate\View\ViewFinderInterface;
 use SplFileInfo;
-use Surgiie\Blade\Concerns\ParsesFilePath;
 use Surgiie\Blade\Exceptions\FileNotFoundException;
 use Surgiie\Blade\Exceptions\UndefinedVariableException;
 
 class Blade
 {
-    use ParsesFilePath;
-
     /**
      * Get the engine name for resolver registration.
      */
@@ -236,8 +233,6 @@ class Blade
     public function compile(string $path, array $data): string
     {
         $path = static::normalizePathForOS($path);
-
-        $path = static::parseFilePath($path);
 
         if (! is_file($path)) {
             throw new FileNotFoundException("The $path file does not exist.");

@@ -3,13 +3,14 @@
 namespace Surgiie\Blade\Concerns;
 
 use Illuminate\Support\Str;
+use Surgiie\Blade\FileCompiler;
 use Surgiie\Blade\AnonymousComponent;
 use Surgiie\Blade\ComponentTagCompiler;
-use Surgiie\Blade\FileCompiler;
+use Surgiie\Blade\Concerns\ParsesComponentFilePath;
 
 trait CompilesComponents
 {
-    use ParsesFilePath;
+    use ParsesComponentFilePath;
     /**The options for components passed down from start component compile. */
     protected array $componentOptionsStack = [];
 
@@ -61,10 +62,12 @@ trait CompilesComponents
     public static function compileComponentClassOpening(string $component, string $alias, string $data, string $hash, FileCompiler $compiler)
     {
 
-        [$path, $class] = ComponentTagCompiler::getComponentFilePath(str_replace("'", '', $alias), $compiler->getPath());
+        $separator = DIRECTORY_SEPARATOR;
+        [$path, $class] = ComponentTagCompiler::getComponentFilePath($cleanAlias = str_replace("'", '', $alias), $compiler->getPath());
         
         if (!$path && $alias) {
-            $path = static::parseFilePath(str_replace("'", '', $alias), isComponentPath: true);
+            $path = static::parseComponentPath($cleanAlias);
+
             $data = str_replace("'view' => $alias", "'view'=> '$path'", $data);
         }
         else if ($path && $class == AnonymousComponent::class) {
