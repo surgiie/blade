@@ -10,15 +10,22 @@ trait ParsesFilePath
      */
     protected static function parseFilePath(string $path)
     {
+        $isComponentPath =   preg_match('~^-?[^.\s]+(?:\.[^.\s]+)+$~', $path);
+
         // component paths via absolute path <x--*>
-        if (str_starts_with($path, '-')) {
+        if (str_starts_with($path, '-') && $isComponentPath) {
             $path = '/'.ltrim($path, '-');
         }
-
+        
         $ext = pathinfo($path)['extension'] ?? '';
+        
+        
+        $path = str_replace(".$ext", '', $path);
 
-        $path = str_replace('.', DIRECTORY_SEPARATOR, str_replace(".$ext", '', $path));
-
+        if($isComponentPath){
+            $path = str_replace('.', DIRECTORY_SEPARATOR, $path);
+        }
+        
         $path = $ext ? "$path.$ext" : $path;
 
         return $path;
