@@ -9,6 +9,7 @@ use Surgiie\Blade\FileCompiler;
 
 trait CompilesComponents
 {
+    use ParsesFilePath;
     /**The options for components passed down from start component compile. */
     protected array $componentOptionsStack = [];
 
@@ -59,19 +60,24 @@ trait CompilesComponents
      */
     public static function compileComponentClassOpening(string $component, string $alias, string $data, string $hash, FileCompiler $compiler)
     {
-        [$path, $class] = ComponentTagCompiler::getComponentFilePath(str_replace("'", '', $alias), $compiler->getPath());
 
-        if ($path && $class == AnonymousComponent::class) {
+        [$path, $class] = ComponentTagCompiler::getComponentFilePath(str_replace("'", '', $alias), $compiler->getPath());
+        
+        if (!$path && $alias) {
+            $path = static::parseFilePath(str_replace("'", '', $alias), isComponentPath: true);
             $data = str_replace("'view' => $alias", "'view'=> '$path'", $data);
         }
-
+        else if ($path && $class == AnonymousComponent::class) {
+            $data = str_replace("'view' => $alias", "'view'=> '$path'", $data);
+        }
+        
         $parts = explode(PHP_EOL, $opening = parent::compileClassComponentOpening($component, $alias, $data, $hash));
-
+        
         // no alias/class means its an anonymous component.
         if (empty($class)) {
             return $opening;
         }
-
+        
         array_splice($parts, 1, 0, "<?php \$__env->requireComponentClass('$class', '$path') ?>");
 
         return implode(PHP_EOL, $parts);

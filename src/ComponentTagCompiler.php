@@ -44,7 +44,7 @@ class ComponentTagCompiler extends BladeComponentTagCompiler
         if ($path) {
             return $path;
         }
-        $parsed = static::parseFilePath($component);
+        $parsed = static::parseFilePath($component, isComponentPath: true);
         if (str_starts_with($parsed, '/')) {
             return $parsed;
         }
@@ -60,7 +60,7 @@ class ComponentTagCompiler extends BladeComponentTagCompiler
         return str_replace(BladeAnonymousComponent::class, AnonymousComponent::class, $string);
     }
 
-    /**
+    /** 
      * Get the component class for a given component alias.
      */
     public function componentClass(string $component)
@@ -72,7 +72,7 @@ class ComponentTagCompiler extends BladeComponentTagCompiler
             $directory = dirname($this->path).DIRECTORY_SEPARATOR;
         }
 
-        $path = static::parseFilePath($component);
+        $path = static::parseFilePath($component, isComponentPath: true);
 
         $path = $directory.ltrim($path, DIRECTORY_SEPARATOR);
         // if a file with the what we assumed is a file extension doesnt exist.

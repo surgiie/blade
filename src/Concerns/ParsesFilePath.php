@@ -8,17 +8,14 @@ trait ParsesFilePath
      * Parse a path name to filesystem path for compile.
      * This may be a component path as well.
      */
-    protected static function parseFilePath(string $path)
+    protected static function parseFilePath(string $path, bool $isComponentPath = false)
     {
-        $isComponentPath =   preg_match('~^-?[^.\s]+(?:\.[^.\s]+)+$~', $path);
-
         // component paths via absolute path <x--*>
         if (str_starts_with($path, '-') && $isComponentPath) {
             $path = '/'.ltrim($path, '-');
         }
         
         $ext = pathinfo($path)['extension'] ?? '';
-        
         
         $path = str_replace(".$ext", '', $path);
 
