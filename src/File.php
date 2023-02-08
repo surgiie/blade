@@ -15,7 +15,7 @@ class File extends View
     /**
      * Set the rendering options.
      *
-     * @param array $options
+     * @param  array  $options
      * @return void
      */
     public function setRenderOptions(array $options = [])
@@ -25,8 +25,9 @@ class File extends View
 
     /**
      * Get the string contents of the view.
-     * 
-     * @param callable $callback
+     *
+     * @param  callable  $callback
+     *
      * @throws \Throwable
      */
     public function render(callable $callback = null)

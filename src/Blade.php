@@ -103,7 +103,7 @@ class Blade
     /**
      * Set whether cached files should be used or not.
      *
-     * @param boolean $useCacheFiles
+     * @param  bool  $useCacheFiles
      * @return void
      */
     public static function useCachedCompiledFiles(bool $useCacheFiles)
@@ -114,7 +114,7 @@ class Blade
     /**
      * Get whether cached compiled files should be used or not.
      *
-     * @return boolean
+     * @return bool
      */
     public static function shouldUseCachedCompiledFiles()
     {
@@ -124,7 +124,7 @@ class Blade
     /**
      * Normalize a path for the appropriate OS/directory separator.
      *
-     * @param string $path
+     * @param  string  $path
      * @return void
      */
     protected static function normalizePathForOS(string $path)
@@ -153,7 +153,7 @@ class Blade
     /**
      * Set the compiled path.
      *
-     * @param string $path
+     * @param  string  $path
      * @return void
      */
     public function setCompiledPath(string $path)
@@ -236,7 +236,7 @@ class Blade
     /**
      * Make the directory where compiled files go.
      *
-     * @return boolean
+     * @return bool
      */
     public function makeCompiledDirectory(): bool
     {
@@ -267,9 +267,9 @@ class Blade
     /**
      * Compile a file and return the contents.
      *
-     * @param string $path
-     * @param array $data
-     * @param bool $removeCachedFile
+     * @param  string  $path
+     * @param  array  $data
+     * @param  bool  $removeCachedFile
      * @return string
      */
     public function compile(string $path, array $data, bool $removeCachedFile = false): string
@@ -291,7 +291,7 @@ class Blade
         $finder->flush();
 
         $realPath = dirname($info->getRealPath());
-        
+
         // dont use realpath on phar file paths as it will always be false.
         if (str_starts_with($path, 'phar://')) {
             $realPath = dirname($path);
@@ -308,8 +308,8 @@ class Blade
         $contents = $file->render();
 
         restore_error_handler();
-             
-        if($removeCachedFile){
+
+        if ($removeCachedFile) {
             unlink($this->getFileCompiler()->getCompiledPath($path));
         }
 

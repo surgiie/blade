@@ -33,9 +33,9 @@ class ComponentTagCompiler extends BladeComponentTagCompiler
     /**
      * Register a component to file entry
      *
-     * @param string $component
-     * @param string $file
-     * @param string $class
+     * @param  string  $component
+     * @param  string  $file
+     * @param  string  $class
      * @return void
      */
     public static function newComponentToFile(string $component, string $file, string $class)
@@ -46,8 +46,8 @@ class ComponentTagCompiler extends BladeComponentTagCompiler
     /**
      * Get a component to file entry.
      *
-     * @param string $component
-     * @param string $compilingPath
+     * @param  string  $component
+     * @param  string  $compilingPath
      * @return void
      */
     public static function getComponentFilePath(string $component, string $compilingPath)
@@ -57,7 +57,7 @@ class ComponentTagCompiler extends BladeComponentTagCompiler
         if ($path) {
             return $path;
         }
-        
+
         $parsed = static::parseComponentPath($component);
         if (str_starts_with($parsed, '/')) {
             return $parsed;
@@ -69,8 +69,8 @@ class ComponentTagCompiler extends BladeComponentTagCompiler
     /**
      * Generate a component string.
      *
-     * @param string $component
-     * @param array $attributes
+     * @param  string  $component
+     * @param  array  $attributes
      * @return void
      */
     protected function componentString(string $component, array $attributes)
@@ -83,7 +83,7 @@ class ComponentTagCompiler extends BladeComponentTagCompiler
     /**
      * Get the component class for a given component alias.
      *
-     * @param string $component
+     * @param  string  $component
      * @return void
      */
     public function componentClass(string $component)

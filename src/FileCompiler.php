@@ -39,8 +39,8 @@ class FileCompiler extends BladeCompiler
     /**
      * Determine if the file is expired.
      *
-     * @param string $path
-     * @return boolean
+     * @param  string  $path
+     * @return bool
      */
     public function isExpired($path)
     {
