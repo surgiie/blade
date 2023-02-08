@@ -22,7 +22,7 @@ class ComponentTagCompiler extends BladeComponentTagCompiler
     protected static $componentToFileStack = [];
 
     /**
-     * Create a new component tag compiler.
+     * Create a new \Surgiie\Blade\ComponentTagCompiler instance.
      */
     public function __construct(string $path, array $aliases = [], array $namespaces = [], ?FileCompiler $compiler = null)
     {
@@ -30,13 +30,26 @@ class ComponentTagCompiler extends BladeComponentTagCompiler
         parent::__construct($aliases, $namespaces, $compiler);
     }
 
-    /**Register a component to file entry.*/
+    /**
+     * Register a component to file entry
+     *
+     * @param string $component
+     * @param string $file
+     * @param string $class
+     * @return void
+     */
     public static function newComponentToFile(string $component, string $file, string $class)
     {
         static::$componentToFileStack[$component] = [$file, $class];
     }
 
-    /**Get a component to file entry.*/
+    /**
+     * Get a component to file entry.
+     *
+     * @param string $component
+     * @param string $compilingPath
+     * @return void
+     */
     public static function getComponentFilePath(string $component, string $compilingPath)
     {
         $path = static::$componentToFileStack[$component];
@@ -53,7 +66,13 @@ class ComponentTagCompiler extends BladeComponentTagCompiler
         return [dirname($compilingPath).DIRECTORY_SEPARATOR.$component, AnonymousComponent::class];
     }
 
-    /**Generate a component string.*/
+    /**
+     * Generate a component string.
+     *
+     * @param string $component
+     * @param array $attributes
+     * @return void
+     */
     protected function componentString(string $component, array $attributes)
     {
         $string = parent::componentString($component, $attributes);
@@ -61,8 +80,11 @@ class ComponentTagCompiler extends BladeComponentTagCompiler
         return str_replace(BladeAnonymousComponent::class, AnonymousComponent::class, $string);
     }
 
-    /** 
+    /**
      * Get the component class for a given component alias.
+     *
+     * @param string $component
+     * @return void
      */
     public function componentClass(string $component)
     {

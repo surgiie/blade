@@ -13,6 +13,10 @@ class FileCompilerEngine extends CompilerEngine
      * This assists with preserving spacing/indentation from
      * the compiled file which is important to preserve so
      * we dont end up with shifted content in a file.
+     *
+     * @param string $path
+     * @param array $data
+     * @return void
      */
     protected function evaluatePath($path, $data)
     {
@@ -34,6 +38,10 @@ class FileCompilerEngine extends CompilerEngine
 
     /**
      * Handle a view render exception.
+     *
+     * @param Throwable $e
+     * @param int $obLevel
+     * @return void
      */
     protected function handleViewException(Throwable $e, $obLevel)
     {
@@ -42,7 +50,10 @@ class FileCompilerEngine extends CompilerEngine
     }
 
     /**
-     * Get the exception message for an exception.
+     * Get a formatted exception message for a compile error.
+     *
+     * @param Throwable $e
+     * @return string
      */
     protected function getMessage(Throwable $e): string
     {

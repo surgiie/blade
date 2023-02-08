@@ -36,7 +36,12 @@ class FileCompiler extends BladeCompiler
         );
     }
 
-    /**Determine if the file is expired.*/
+    /**
+     * Determine if the file is expired.
+     *
+     * @param string $path
+     * @return boolean
+     */
     public function isExpired($path)
     {
         return Blade::shouldUseCachedCompiledFiles() == false ? true : parent::isExpired($path);

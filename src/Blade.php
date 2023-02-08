@@ -68,7 +68,7 @@ class Blade
     protected Container|FoundationApplication $container;
 
     /**
-     * Construct a new Blade instance and configure engine.
+     * Construct a new \Surgiie\Blade\Blade instance.
      */
     public function __construct(Container|FoundationApplication $container, Filesystem $filesystem, string $compiledPath = null)
     {
@@ -100,19 +100,33 @@ class Blade
         });
     }
 
-    /**Set whether cached files should be used or not. */
+    /**
+     * Set whether cached files should be used or not.
+     *
+     * @param boolean $useCacheFiles
+     * @return void
+     */
     public static function useCachedCompiledFiles(bool $useCacheFiles)
     {
         static::$useCachedFiles = $useCacheFiles;
     }
 
-    /**Get whether cached compiled files should be used or not. */
+    /**
+     * Get whether cached compiled files should be used or not.
+     *
+     * @return boolean
+     */
     public static function shouldUseCachedCompiledFiles()
     {
         return static::$useCachedFiles;
     }
 
-    /**Normalize a path for the appropriate OS/directory separator.*/
+    /**
+     * Normalize a path for the appropriate OS/directory separator.
+     *
+     * @param string $path
+     * @return void
+     */
     protected static function normalizePathForOS(string $path)
     {
         if (DIRECTORY_SEPARATOR == '\\') {
@@ -124,6 +138,8 @@ class Blade
 
     /**
      * Return the set file finder.
+     *
+     * @return \Surgiie\Blade\FileFinder
      */
     public function getFileFinder(): FileFinder
     {
@@ -134,7 +150,12 @@ class Blade
         return $this->fileFinder = new FileFinder($this->filesystem, []);
     }
 
-    /**Set the compiled path.*/
+    /**
+     * Set the compiled path.
+     *
+     * @param string $path
+     * @return void
+     */
     public function setCompiledPath(string $path)
     {
         $this->compiledPath = $path;
@@ -144,6 +165,8 @@ class Blade
 
     /**
      * Return the set engine resolver.
+     *
+     * @return \Illuminate\View\Engines\EngineResolver
      */
     protected function getEngineResolver(): EngineResolver
     {
@@ -156,6 +179,8 @@ class Blade
 
     /**
      * Return set file factory instance.
+     *
+     * @return \Surgiie\Blade\FileFactory
      */
     protected function getFileFactory(): FileFactory
     {
@@ -172,6 +197,8 @@ class Blade
 
     /**
      * Return set compiler engine instance.
+     *
+     * @return \Surgiie\Blade\FileCompilerEngine
      */
     protected function getCompilerEngine(): FileCompilerEngine
     {
@@ -184,6 +211,8 @@ class Blade
 
     /**
      * Return the set file compiler instance.
+     *
+     * @return \Surgiie\Blade\FileCompiler
      */
     protected function getFileCompiler(): FileCompiler
     {
@@ -196,6 +225,8 @@ class Blade
 
     /**
      * Get the compiled path to where compiled files go.
+     *
+     * @return string
      */
     public function getCompiledPath(): string
     {
@@ -204,6 +235,8 @@ class Blade
 
     /**
      * Make the directory where compiled files go.
+     *
+     * @return boolean
      */
     public function makeCompiledDirectory(): bool
     {
@@ -212,6 +245,8 @@ class Blade
 
     /**
      * Return a custom error handler for when we render a file.
+     *
+     * @return \Closure
      */
     protected function getRenderErrorHandler(): Closure
     {
@@ -229,8 +264,15 @@ class Blade
         };
     }
 
-    /**Compile a file and return the contents.*/
-    public function compile(string $path, array $data): string
+    /**
+     * Compile a file and return the contents.
+     *
+     * @param string $path
+     * @param array $data
+     * @param bool $removeCachedFile
+     * @return string
+     */
+    public function compile(string $path, array $data, bool $removeCachedFile = false): string
     {
         $path = static::normalizePathForOS($path);
 
@@ -249,6 +291,7 @@ class Blade
         $finder->flush();
 
         $realPath = dirname($info->getRealPath());
+        
         // dont use realpath on phar file paths as it will always be false.
         if (str_starts_with($path, 'phar://')) {
             $realPath = dirname($path);
@@ -265,6 +308,10 @@ class Blade
         $contents = $file->render();
 
         restore_error_handler();
+             
+        if($removeCachedFile){
+            unlink($this->getFileCompiler()->getCompiledPath($path));
+        }
 
         return $contents;
     }
