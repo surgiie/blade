@@ -309,8 +309,12 @@ class Blade
 
         restore_error_handler();
 
-        if ($removeCachedFile) {
-            unlink($this->getFileCompiler()->getCompiledPath($path));
+        if ($removeCachedFile && is_file($this->getFileCompiler()->getCompiledPath($path))) {
+            $engine = $file->getEngine();
+            
+            $engine->forgetCompiledOrNotExpired();
+            
+            unlink($engine->getCompiler()->getCompiledPath($path));
         }
 
         return $contents;
