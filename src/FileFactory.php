@@ -12,13 +12,22 @@ class FileFactory extends Factory
 
     /**
      * Disable dot notation normalization.
+     *
+     * @param  string  $name
+     * @return void
      */
     protected function normalizeName($name)
     {
         return $name;
     }
 
-    /**Require the component class if needed.*/
+    /**
+     * Require the component class if needed.
+     *
+     * @param  string  $class
+     * @param  string  $path
+     * @return void
+     */
     public function requireComponentClass(string $class, string $path)
     {
         if (! class_exists($class)) {
@@ -34,6 +43,12 @@ class FileFactory extends Factory
 
     /**
      * Get the first view that actually exists from the given list.
+     *
+     * @param  array  $views
+     * @param  array  $data
+     * @param  array  $mergeData
+     * @param  array  $options
+     * @return string
      */
     public function first(array $views, $data = [], $mergeData = [], $options = [])
     {
@@ -46,6 +61,13 @@ class FileFactory extends Factory
 
     /**
      * Get the rendered content of the view based on a given condition.
+     *
+     * @param  bool  $condition
+     * @param  string  $view
+     * @param  array  $data
+     * @param  array  $mergeData
+     * @param  array  $options
+     * @return string
      */
     public function renderWhen($condition, $view, $data = [], $mergeData = [], $options = [])
     {
@@ -62,6 +84,13 @@ class FileFactory extends Factory
 
     /**
      * Get the rendered content of the view based on the negation of a given condition.
+     *
+     * @param  bool  $condition
+     * @param  string  $view
+     * @param  array  $data
+     * @param  array  $mergeData
+     * @param  array  $options
+     * @return string
      */
     public function renderUnless($condition, $view, $data = [], $mergeData = [], $options = [])
     {
@@ -80,9 +109,14 @@ class FileFactory extends Factory
         return $this->modifyRenderedContent($contents, $options);
     }
 
-    /*
     /**
      * Get the evaluated view contents for the given view.
+     *
+     * @param  string  $view
+     * @param  array  $data
+     * @param  array  $mergeData
+     * @param  array  $options
+     * @return \Surgiie\Blade\File
      */
     public function make($view, $data = [], $mergeData = [], $options = [])
     {
@@ -95,6 +129,9 @@ class FileFactory extends Factory
 
     /**
      * Get the extension used by the view file.
+     *
+     * @param  string  $path
+     * @return string
      */
     protected function getExtension($path)
     {
@@ -103,6 +140,9 @@ class FileFactory extends Factory
 
     /**
      * Get the appropriate view engine for the given path.
+     *
+     * @param  string  $path
+     * @return \Illuminate\Contracts\View\Engine
      */
     public function getEngineFromPath($path)
     {
@@ -111,6 +151,11 @@ class FileFactory extends Factory
 
     /**
      * Create a new view instance from the given arguments.
+     *
+     * @param  string  $view
+     * @param  string  $path
+     * @param  array  $data
+     * @return \Surgiie\Blade\File
      */
     protected function viewInstance($view, $path, $data)
     {

@@ -12,7 +12,12 @@ class File extends View
     /**Rendering options. */
     protected array $renderOptions = [];
 
-    /**Set the rendering options.*/
+    /**
+     * Set the rendering options.
+     *
+     * @param  array  $options
+     * @return void
+     */
     public function setRenderOptions(array $options = [])
     {
         $this->renderOptions = $options;
@@ -20,6 +25,8 @@ class File extends View
 
     /**
      * Get the string contents of the view.
+     *
+     * @param  callable  $callback
      *
      * @throws \Throwable
      */

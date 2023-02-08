@@ -5,7 +5,11 @@ use Illuminate\Filesystem\Filesystem;
 use Surgiie\Blade\Blade;
 
 if (! function_exists('blade')) {
-    /**Return the blade instance.*/
+    /**
+     * Return a fresh blade instance.
+     *
+     * @return \Surgiie\Blade\Blade
+     */
     function blade()
     {
         $container = Container::getInstance();
