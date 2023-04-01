@@ -55,7 +55,7 @@ class Blade
     /**
      * Whether compiled views should be cached into directory.
      */
-    protected static bool $cacheCompiled = false;
+    protected static bool $cacheCompiled = true;
 
     /**
      * The file compiler instance.
