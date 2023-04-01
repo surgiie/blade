@@ -39,7 +39,6 @@ class FileCompilerEngine extends CompilerEngine
     /**
      * Handle a view render exception.
      *
-     * @param  Throwable  $e
      * @param  int  $obLevel
      * @return void
      */
@@ -51,9 +50,6 @@ class FileCompilerEngine extends CompilerEngine
 
     /**
      * Get a formatted exception message for a compile error.
-     *
-     * @param  Throwable  $e
-     * @return string
      */
     protected function getMessage(Throwable $e): string
     {

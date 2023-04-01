@@ -40,9 +40,8 @@ class FileCompiler extends BladeCompiler
      * Determine if the file is expired.
      *
      * @param  string  $path
-     * @return bool
      */
-    public function isExpired($path)
+    public function isExpired($path): bool
     {
         return Blade::shouldUseCachedCompiledFiles() == false ? true : parent::isExpired($path);
     }
@@ -51,9 +50,8 @@ class FileCompiler extends BladeCompiler
      * Compile the component tags.
      *
      * @param  string  $value
-     * @return string
      */
-    protected function compileComponentTags($value)
+    protected function compileComponentTags($value): string
     {
         if (! $this->compilesComponentTags) {
             return $value;

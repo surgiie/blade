@@ -15,7 +15,6 @@ class File extends View
     /**
      * Set the rendering options.
      *
-     * @param  array  $options
      * @return void
      */
     public function setRenderOptions(array $options = [])

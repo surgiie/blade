@@ -6,47 +6,32 @@ class AnonymousComponent extends Component
 {
     /**
      * The component view.
-     *
-     * @var string
      */
-    protected $view;
+    protected string $view;
 
     /**
      * The component data.
-     *
-     * @var array
      */
-    protected $data = [];
+    protected array $data = [];
 
-    /**
-     * Create a new anonymous component instance.
-     *
-     * @param  string  $view
-     * @param  array  $data
-     * @return void
-     */
-    public function __construct($view, $data)
+    public function __construct(string $view, array $data)
     {
         $this->view = $view;
         $this->data = $data;
     }
 
     /**
-     * Get the view / view contents that represent the component.
-     *
-     * @return string
+     * Get the view contents that represent the component.
      */
-    public function render()
+    public function render(): string
     {
         return blade()->compile($this->view, $this->data);
     }
 
     /**
      * Get the data that should be supplied to the view.
-     *
-     * @return array
      */
-    public function data()
+    public function data(): array
     {
         $this->attributes = $this->attributes ?: $this->newAttributeBag();
 

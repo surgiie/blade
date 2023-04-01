@@ -15,15 +15,10 @@ class ComponentTagCompiler extends BladeComponentTagCompiler
     protected string $path;
 
     /**
-     * The component to file stack.
-     *
-     * @var array
+     * A array to keep track of mapping component name/tagname to file path.
      */
-    protected static $componentToFileStack = [];
+    protected static array $componentToFileStack = [];
 
-    /**
-     * Create a new \Surgiie\Blade\ComponentTagCompiler instance.
-     */
     public function __construct(string $path, array $aliases = [], array $namespaces = [], ?FileCompiler $compiler = null)
     {
         $this->path = $path;
@@ -32,25 +27,16 @@ class ComponentTagCompiler extends BladeComponentTagCompiler
 
     /**
      * Register a component to file entry
-     *
-     * @param  string  $component
-     * @param  string  $file
-     * @param  string  $class
-     * @return void
      */
-    public static function newComponentToFile(string $component, string $file, string $class)
+    public static function newComponentToFile(string $component, string $file, string $class): void
     {
         static::$componentToFileStack[$component] = [$file, $class];
     }
 
     /**
      * Get a component to file entry.
-     *
-     * @param  string  $component
-     * @param  string  $compilingPath
-     * @return void
      */
-    public static function getComponentFilePath(string $component, string $compilingPath)
+    public static function getComponentFilePath(string $component, string $compilingPath): array|string
     {
         $path = static::$componentToFileStack[$component];
 
@@ -67,13 +53,9 @@ class ComponentTagCompiler extends BladeComponentTagCompiler
     }
 
     /**
-     * Generate a component string.
-     *
-     * @param  string  $component
-     * @param  array  $attributes
-     * @return void
+     * Generate a component string for a compiled file.
      */
-    protected function componentString(string $component, array $attributes)
+    protected function componentString(string $component, array $attributes): string
     {
         $string = parent::componentString($component, $attributes);
 
@@ -82,9 +64,6 @@ class ComponentTagCompiler extends BladeComponentTagCompiler
 
     /**
      * Get the component class for a given component alias.
-     *
-     * @param  string  $component
-     * @return void
      */
     public function componentClass(string $component)
     {
@@ -96,23 +75,18 @@ class ComponentTagCompiler extends BladeComponentTagCompiler
         }
 
         $path = static::parseComponentPath($component);
-
         $path = $directory.ltrim($path, DIRECTORY_SEPARATOR);
-        // if a file with the what we assumed is a file extension doesnt exist.
-        // then replace it with a directory separator as its likely a file without extension.
-        if (! file_exists($path)) {
-            $path = str_replace('.', DIRECTORY_SEPARATOR, $path);
-        }
+
         if (array_key_exists($path, static::$componentToFileStack)) {
             return static::$componentToFileStack[$path];
         }
 
-        if (is_file($componentPhpFilePath = $path.'.php') || is_file($componentPhpFilePath = $path) && str_ends_with($path, '.php')) {
-            $class = require_once "$componentPhpFilePath";
+        if (is_file($componentPhpFilePath = $path.'.php') || (is_file($componentPhpFilePath = $path) && str_ends_with($path, '.php'))) {
+            $class = require_once $componentPhpFilePath;
 
-            if (is_numeric($class) || ! class_exists($class)) {
+            if (! is_string($class) || ! class_exists($class)) {
                 throw new InvalidArgumentException(
-                    "File [{$componentPhpFilePath}] must return ::class constant."
+                    "File [{$componentPhpFilePath}] must return a valid class name."
                 );
             }
 

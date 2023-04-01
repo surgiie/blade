@@ -53,6 +53,11 @@ class Blade
     protected ?EngineResolver $resolver = null;
 
     /**
+     * Whether compiled views should be cached into directory.
+     */
+    protected static bool $cacheCompiled = false;
+
+    /**
      * The file compiler instance.
      */
     protected ?FileCompiler $fileCompiler = null;
@@ -67,44 +72,26 @@ class Blade
      */
     protected Container|FoundationApplication $container;
 
-    /**
-     * Construct a new \Surgiie\Blade\Blade instance.
-     */
     public function __construct(Container|FoundationApplication $container, Filesystem $filesystem, string $compiledPath = null)
     {
         $this->container = $container;
         $this->filesystem = $filesystem;
-
         $this->compiledPath = $compiledPath ?: __DIR__.'/../.compiled';
 
-        $this->container->bind(ViewFactoryContract::class, function () {
-            return $this->getFileFactory();
-        });
-
-        $this->container->bind('view', function () {
-            return $this->getFileFactory();
-        });
-
-        $this->container->bind(ViewFinderInterface::class, function () {
-            return $this->getFileFinder();
-        });
+        $this->container->bind(ViewFactoryContract::class, fn () => $this->getFileFactory());
+        $this->container->bind('view', fn () => $this->getFileFactory());
+        $this->container->bind(ViewFinderInterface::class, fn () => $this->getFileFinder());
 
         Container::setInstance($this->container);
 
         $this->makeCompiledDirectory();
 
         $this->resolver = $this->getEngineResolver();
-
-        $this->resolver->register(self::ENGINE_NAME, function () {
-            return $this->getCompilerEngine();
-        });
+        $this->resolver->register(self::ENGINE_NAME, fn () => $this->getCompilerEngine());
     }
 
     /**
      * Set whether cached files should be used or not.
-     *
-     * @param  bool  $useCacheFiles
-     * @return void
      */
     public static function useCachedCompiledFiles(bool $useCacheFiles)
     {
@@ -113,60 +100,48 @@ class Blade
 
     /**
      * Get whether cached compiled files should be used or not.
-     *
-     * @return bool
      */
-    public static function shouldUseCachedCompiledFiles()
+    public static function shouldUseCachedCompiledFiles(): bool
     {
         return static::$useCachedFiles;
     }
 
     /**
      * Normalize a path for the appropriate OS/directory separator.
-     *
-     * @param  string  $path
-     * @return void
      */
-    protected static function normalizePathForOS(string $path)
+    protected static function normalizePathForOS(string $path): string
     {
-        if (DIRECTORY_SEPARATOR == '\\') {
-            return str_replace('/', '\\', $path);
+        if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
+            $path = str_replace('/', '\\', $path);
+        } else {
+            $path = str_replace('\\', '/', $path);
         }
 
         return $path;
     }
 
     /**
-     * Return the set file finder.
-     *
-     * @return \Surgiie\Blade\FileFinder
+     * Return the file finder that searches for possible files to render.
      */
     public function getFileFinder(): FileFinder
     {
-        if (! is_null($this->fileFinder)) {
-            return $this->fileFinder;
-        }
-
-        return $this->fileFinder = new FileFinder($this->filesystem, []);
+        return $this->fileFinder ??= new FileFinder($this->filesystem, []);
     }
 
     /**
-     * Set the compiled path.
-     *
-     * @param  string  $path
-     * @return void
+     * Set the compiled cached path.
      */
     public function setCompiledPath(string $path)
     {
-        $this->compiledPath = $path;
+        if (static::$cacheCompiled) {
+            $this->compiledPath = $path;
+        }
 
         return $this;
     }
 
     /**
      * Return the set engine resolver.
-     *
-     * @return \Illuminate\View\Engines\EngineResolver
      */
     protected function getEngineResolver(): EngineResolver
     {
@@ -178,17 +153,11 @@ class Blade
     }
 
     /**
-     * Return set file factory instance.
-     *
-     * @return \Surgiie\Blade\FileFactory
+     * Return the file factory that renders the files.
      */
     protected function getFileFactory(): FileFactory
     {
-        if (! is_null($this->fileFactory)) {
-            return $this->fileFactory;
-        }
-
-        return $this->fileFactory = new FileFactory(
+        return $this->fileFactory ??= new FileFactory(
             $this->getEngineResolver(),
             $this->getFileFinder(),
             new Dispatcher($this->container)
@@ -196,37 +165,39 @@ class Blade
     }
 
     /**
-     * Return set compiler engine instance.
-     *
-     * @return \Surgiie\Blade\FileCompilerEngine
+     * Return the file compiler engine.
      */
     protected function getCompilerEngine(): FileCompilerEngine
     {
-        if (! is_null($this->compilerEngine)) {
-            return $this->compilerEngine;
-        }
-
-        return $this->compilerEngine = new FileCompilerEngine($this->getFileCompiler());
+        return $this->compilerEngine ??= new FileCompilerEngine($this->getFileCompiler());
     }
 
     /**
-     * Return the set file compiler instance.
-     *
-     * @return \Surgiie\Blade\FileCompiler
+     * Return the file compiler.
      */
     protected function getFileCompiler(): FileCompiler
     {
-        if (! is_null($this->fileCompiler)) {
-            return $this->fileCompiler;
-        }
+        return  $this->fileCompiler ??= new FileCompiler($this->filesystem, $this->getCompiledPath(), shouldCache: static::$cacheCompiled);
+    }
 
-        return $this->fileCompiler = new FileCompiler($this->filesystem, $this->getCompiledPath());
+    /**
+     * Enable compile caching into a directory.
+     */
+    public static function cacheCompiled(): void
+    {
+        static::$cacheCompiled = true;
+    }
+
+    /**
+     * Disable compile caching into a directory.
+     */
+    public static function dontCacheCompiled(): void
+    {
+        static::$cacheCompiled = false;
     }
 
     /**
      * Get the compiled path to where compiled files go.
-     *
-     * @return string
      */
     public function getCompiledPath(): string
     {
@@ -234,19 +205,19 @@ class Blade
     }
 
     /**
-     * Make the directory where compiled files go.
-     *
-     * @return bool
+     * Create the compiled cache directory if enabled.
      */
     public function makeCompiledDirectory(): bool
     {
+        if (! static::$cacheCompiled) {
+            return false;
+        }
+
         return @mkdir($this->getCompiledPath());
     }
 
     /**
      * Return a custom error handler for when we render a file.
-     *
-     * @return \Closure
      */
     protected function getRenderErrorHandler(): Closure
     {
@@ -266,11 +237,6 @@ class Blade
 
     /**
      * Compile a file and return the contents.
-     *
-     * @param  string  $path
-     * @param  array  $data
-     * @param  bool  $removeCachedFile
-     * @return string
      */
     public function compile(string $path, array $data, bool $removeCachedFile = false): string
     {
@@ -309,12 +275,12 @@ class Blade
 
         restore_error_handler();
 
-        if ($removeCachedFile && is_file($this->getFileCompiler()->getCompiledPath($path))) {
-            $engine = $file->getEngine();
-            
-            $engine->forgetCompiledOrNotExpired();
-            
-            unlink($engine->getCompiler()->getCompiledPath($path));
+        $compiler = $this->getFileCompiler();
+
+        if ($removeCachedFile && is_file($compiler->getCompiledPath($path))) {
+            $file->getEngine()->forgetCompiledOrNotExpired();
+
+            unlink($compiler->getCompiledPath($path));
         }
 
         return $contents;

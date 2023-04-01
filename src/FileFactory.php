@@ -24,8 +24,6 @@ class FileFactory extends Factory
     /**
      * Require the component class if needed.
      *
-     * @param  string  $class
-     * @param  string  $path
      * @return void
      */
     public function requireComponentClass(string $class, string $path)
@@ -44,7 +42,6 @@ class FileFactory extends Factory
     /**
      * Get the first view that actually exists from the given list.
      *
-     * @param  array  $views
      * @param  array  $data
      * @param  array  $mergeData
      * @param  array  $options
