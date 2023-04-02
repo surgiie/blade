@@ -43,7 +43,7 @@ class FileCompiler extends BladeCompiler
      */
     public function isExpired($path): bool
     {
-        return Blade::shouldUseCachedCompiledFiles() == false ? true : parent::isExpired($path);
+        return Blade::cacheCompiled() ? parent::isExpired($path) : true;
     }
 
     /**

@@ -22,7 +22,7 @@ class Blade
     public const ENGINE_NAME = 'blade';
 
     /**Path to compiled files.*/
-    protected string $compiledPath;
+    protected ?string $compiledPath;
 
     /**
      * The filesystem instance.
@@ -43,9 +43,6 @@ class Blade
      * The file factory instance.
      */
     protected ?FileFactory $fileFactory = null;
-
-    /**Whether cached files should get used.*/
-    protected static bool $useCachedFiles = true;
 
     /**
      * The engine resolver instance.
@@ -91,22 +88,6 @@ class Blade
     }
 
     /**
-     * Set whether cached files should be used or not.
-     */
-    public static function useCachedCompiledFiles(bool $useCacheFiles)
-    {
-        static::$useCachedFiles = $useCacheFiles;
-    }
-
-    /**
-     * Get whether cached compiled files should be used or not.
-     */
-    public static function shouldUseCachedCompiledFiles(): bool
-    {
-        return static::$useCachedFiles;
-    }
-
-    /**
      * Normalize a path for the appropriate OS/directory separator.
      */
     protected static function normalizePathForOS(string $path): string
@@ -131,7 +112,7 @@ class Blade
     /**
      * Set the compiled cached path.
      */
-    public function setCompiledPath(string $path)
+    public function setCompiledPath(?string $path)
     {
         if (static::$cacheCompiled) {
             $this->compiledPath = $path;
@@ -199,7 +180,7 @@ class Blade
     /**
      * Get the compiled path to where compiled files go.
      */
-    public function getCompiledPath(): string
+    public function getCompiledPath(): ?string
     {
         return $this->compiledPath;
     }
@@ -238,8 +219,14 @@ class Blade
     /**
      * Compile a file and return the contents.
      */
-    public function compile(string $path, array $data, bool $removeCachedFile = false): string
+    public function compile(string $path, array $data, bool $cache = true): string
     {
+        if (!$cache) {
+            Blade::dontCacheCompiled();
+        }else{
+            Blade::cacheCompiled();
+        }
+
         $path = static::normalizePathForOS($path);
 
         if (! is_file($path)) {
@@ -275,13 +262,11 @@ class Blade
 
         restore_error_handler();
 
-        $compiler = $this->getFileCompiler();
-
-        if ($removeCachedFile && is_file($compiler->getCompiledPath($path))) {
+        if (!$cache) {
             $file->getEngine()->forgetCompiledOrNotExpired();
-
-            unlink($compiler->getCompiledPath($path));
+            Blade::cacheCompiled();
         }
+
 
         return $contents;
     }
