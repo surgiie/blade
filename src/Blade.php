@@ -22,7 +22,12 @@ class Blade
     public const ENGINE_NAME = 'blade';
 
     /**Path to compiled files.*/
-    protected ?string $compiledPath;
+    protected string $compiledPath;
+
+    /**
+     * Whether the container/engine is booted.
+     */
+    protected bool $booted = false;
 
     /**
      * The filesystem instance.
@@ -74,17 +79,6 @@ class Blade
         $this->container = $container;
         $this->filesystem = $filesystem;
         $this->compiledPath = $compiledPath ?: __DIR__.'/../.compiled';
-
-        $this->container->bind(ViewFactoryContract::class, fn () => $this->getFileFactory());
-        $this->container->bind('view', fn () => $this->getFileFactory());
-        $this->container->bind(ViewFinderInterface::class, fn () => $this->getFileFinder());
-
-        Container::setInstance($this->container);
-
-        $this->makeCompiledDirectory();
-
-        $this->resolver = $this->getEngineResolver();
-        $this->resolver->register(self::ENGINE_NAME, fn () => $this->getCompilerEngine());
     }
 
     /**
@@ -112,11 +106,9 @@ class Blade
     /**
      * Set the compiled cached path.
      */
-    public function setCompiledPath(?string $path)
+    public function setCompiledPath(string $path)
     {
-        if (static::$cacheCompiled) {
-            $this->compiledPath = $path;
-        }
+        $this->compiledPath = $path;
 
         return $this;
     }
@@ -164,17 +156,17 @@ class Blade
     /**
      * Enable compile caching into a directory.
      */
-    public static function cacheCompiled(): void
+    public static function cacheCompiled(bool $flag): void
     {
-        static::$cacheCompiled = true;
+        static::$cacheCompiled = $flag;
     }
 
     /**
-     * Disable compile caching into a directory.
+     * Enable compile caching into a directory.
      */
-    public static function dontCacheCompiled(): void
+    public static function isCachingCompiled(): bool
     {
-        static::$cacheCompiled = false;
+        return static::$cacheCompiled;
     }
 
     /**
@@ -183,18 +175,6 @@ class Blade
     public function getCompiledPath(): ?string
     {
         return $this->compiledPath;
-    }
-
-    /**
-     * Create the compiled cache directory if enabled.
-     */
-    public function makeCompiledDirectory(): bool
-    {
-        if (! static::$cacheCompiled) {
-            return false;
-        }
-
-        return @mkdir($this->getCompiledPath());
     }
 
     /**
@@ -217,15 +197,33 @@ class Blade
     }
 
     /**
+     * Boot and register container dependencies.
+     */
+    protected function boot(): bool
+    {
+        if ($this->booted) {
+            return false;
+        }
+        $this->container->bind(ViewFactoryContract::class, fn () => $this->getFileFactory());
+        $this->container->bind('view', fn () => $this->getFileFactory());
+        $this->container->bind(ViewFinderInterface::class, fn () => $this->getFileFinder());
+
+        Container::setInstance($this->container);
+
+        $this->resolver = $this->getEngineResolver();
+        $this->resolver->register(self::ENGINE_NAME, fn () => $this->getCompilerEngine());
+
+        return $this->booted = true;
+    }
+
+    /**
      * Compile a file and return the contents.
      */
     public function compile(string $path, array $data, bool $cache = true): string
     {
-        if (!$cache) {
-            Blade::dontCacheCompiled();
-        }else{
-            Blade::cacheCompiled();
-        }
+        Blade::cacheCompiled($cache);
+
+        $this->boot();
 
         $path = static::normalizePathForOS($path);
 
@@ -249,7 +247,6 @@ class Blade
         if (str_starts_with($path, 'phar://')) {
             $realPath = dirname($path);
         }
-
         $finder->setPaths([$realPath]);
 
         $factory->addExtension($info->getExtension(), self::ENGINE_NAME);
@@ -262,12 +259,30 @@ class Blade
 
         restore_error_handler();
 
-        if (!$cache) {
-            $file->getEngine()->forgetCompiledOrNotExpired();
-            Blade::cacheCompiled();
+        if (! $cache) {
+            $this->cleanupAfterNotCacheRender($path, $file);
         }
 
+        Blade::cacheCompiled($cache);
 
         return $contents;
+    }
+
+    /**
+     * Cleanup steps after a compile call for non cached file.
+     */
+    protected function cleanupAfterNotCacheRender(string $path, File $file)
+    {
+        $engine = $file->getEngine();
+
+        $engine->forgetCompiledOrNotExpired();
+
+        unlink($engine->getCompiler()->getCompiledPath($path));
+
+        $fs = new Filesystem;
+
+        if ($fs->isEmptyDirectory($compilePath = $this->getCompiledPath())) {
+            $fs->deleteDirectory($compilePath);
+        }
     }
 }
