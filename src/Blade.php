@@ -260,7 +260,7 @@ class Blade
         restore_error_handler();
 
         if (! $cache) {
-            $this->cleanupAfterNotCacheRender($path, $file);
+            $this->cleanupAfterNotCachedRender($path, $file);
         }
 
         Blade::cacheCompiled($cache);
@@ -271,7 +271,7 @@ class Blade
     /**
      * Cleanup steps after a compile call for non cached file.
      */
-    protected function cleanupAfterNotCacheRender(string $path, File $file)
+    protected function cleanupAfterNotCachedRender(string $path, File $file)
     {
         $engine = $file->getEngine();
 
