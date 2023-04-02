@@ -31,6 +31,10 @@ $contents = $blade->compile("/path/to/file", ['var'=>'example']);
 // if you want to clean up cached/compiled files, consider running:
 $fs->deleteDirectory($blade->getCompiledPath());
 
+// or if you dont want to use cached compiled views/files:
+
+$contents = $blade->compile("/path/to/file", ['var'=>'example'], cache: false);
+
 ```
 ### Using Components
 
