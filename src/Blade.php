@@ -57,7 +57,7 @@ class Blade
     /**
      * Whether compiled views should be cached into directory.
      */
-    protected static bool $cacheCompiled = true;
+    protected static bool $shouldCache = true;
 
     /**
      * The file compiler instance.
@@ -79,6 +79,8 @@ class Blade
         $this->container = $container;
         $this->filesystem = $filesystem;
         $this->compiledPath = $compiledPath ?: __DIR__.'/../.compiled';
+
+        $this->boot();
     }
 
     /**
@@ -150,24 +152,20 @@ class Blade
      */
     protected function getFileCompiler(): FileCompiler
     {
-        return  $this->fileCompiler ??= new FileCompiler($this->filesystem, $this->getCompiledPath(), shouldCache: static::$cacheCompiled);
+        return  $this->fileCompiler ??= new FileCompiler($this->filesystem, $this->getCompiledPath(), shouldCache: static::$shouldCache);
     }
 
     /**
-     * Enable compile caching into a directory.
+     * Enable or determine if compiler cache is being used.
      */
-    public static function cacheCompiled(bool $flag): void
+    public static function shouldCache(?bool $flag = null)
     {
-        static::$cacheCompiled = $flag;
+        if(is_null($flag)){
+            return static::$shouldCache;
+        }
+        static::$shouldCache = $flag;
     }
 
-    /**
-     * Enable compile caching into a directory.
-     */
-    public static function isCachingCompiled(): bool
-    {
-        return static::$cacheCompiled;
-    }
 
     /**
      * Get the compiled path to where compiled files go.
@@ -221,9 +219,7 @@ class Blade
      */
     public function compile(string $path, array $data, bool $cache = true): string
     {
-        Blade::cacheCompiled($cache);
-
-        $this->boot();
+        Blade::shouldCache($cache);
 
         $path = static::normalizePathForOS($path);
 
@@ -262,8 +258,6 @@ class Blade
         if (! $cache) {
             $this->cleanupAfterNotCachedRender($path, $file);
         }
-
-        Blade::cacheCompiled($cache);
 
         return $contents;
     }
