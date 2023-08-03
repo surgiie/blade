@@ -61,7 +61,6 @@ trait CompilesComponents
      */
     public static function compileComponentClassOpening(string $component, string $alias, string $data, string $hash, FileCompiler $compiler)
     {
-        $separator = DIRECTORY_SEPARATOR;
         [$path, $class] = ComponentTagCompiler::getComponentFilePath($cleanAlias = str_replace("'", '', $alias), $compiler->getPath());
 
         if (! $path && $alias) {
