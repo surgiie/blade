@@ -20,19 +20,22 @@ use Illuminate\Container\Container;
 use Illuminate\Filesystem\Filesystem;
 
 $fs = new Filesystem;
+
+
 $blade = new Blade(
     container: new Container,
     filesystem: $fs,
+    // default: vendor/surgiie/blade/.compiled
+    compiledPath: "/path/to/cached/compiled/files"
 );
 
 // use absolute path to file
 $contents = $blade->compile("/path/to/file", ['var'=>'example']);
 
-// if you want to clean up cached/compiled files, consider running:
+// delete compiled files which are stored in
 $fs->deleteDirectory($blade->getCompiledPath());
 
-// or if you dont want to use cached compiled views/files:
-
+// or if you dont want to use cached compiled files, i.e force re-render:
 $contents = $blade->compile("/path/to/file", ['var'=>'example'], cache: false);
 
 ```

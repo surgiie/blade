@@ -8,9 +8,8 @@ if (! function_exists('blade')) {
     /**
      * Return a fresh blade instance.
      *
-     * @return \Surgiie\Blade\Blade
      */
-    function blade()
+    function blade(): Blade
     {
         $container = Container::getInstance();
 

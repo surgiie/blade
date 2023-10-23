@@ -21,23 +21,13 @@ class Blade
      */
     public const ENGINE_NAME = 'blade';
 
-    /**Path to compiled files.*/
+    /**Path to cached compiled files.*/
     protected string $compiledPath;
-
-    /**
-     * Whether the container/engine is booted.
-     */
-    protected bool $booted = false;
 
     /**
      * The filesystem instance.
      */
     protected Filesystem $filesystem;
-
-    /**
-     * File info about the file being rendered.
-     */
-    protected ?SplFileInfo $fileInfo = null;
 
     /**
      * The file finder instance.
@@ -55,7 +45,7 @@ class Blade
     protected ?EngineResolver $resolver = null;
 
     /**
-     * Whether compiled views should be cached into directory.
+     * Whether cached files should be cached into directory and used.
      */
     protected static bool $shouldCache = true;
 
@@ -80,22 +70,15 @@ class Blade
         $this->filesystem = $filesystem;
         $this->compiledPath = $compiledPath ?: __DIR__.'/../.compiled';
 
-        $this->boot();
+        $this->container->bind(ViewFactoryContract::class, fn () => $this->getFileFactory());
+        $this->container->bind('view', fn () => $this->getFileFactory());
+        $this->container->bind(ViewFinderInterface::class, fn () => $this->getFileFinder());
+
+        Container::setInstance($this->container);
+
+        $this->getEngineResolver()->register(self::ENGINE_NAME, fn () => $this->getCompilerEngine());
     }
 
-    /**
-     * Normalize a path for the appropriate OS/directory separator.
-     */
-    protected static function normalizePathForOS(string $path): string
-    {
-        if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
-            $path = str_replace('/', '\\', $path);
-        } else {
-            $path = str_replace('\\', '/', $path);
-        }
-
-        return $path;
-    }
 
     /**
      * Return the file finder that searches for possible files to render.
@@ -194,34 +177,20 @@ class Blade
         };
     }
 
-    /**
-     * Boot and register container dependencies.
-     */
-    protected function boot(): bool
-    {
-        if ($this->booted) {
-            return false;
-        }
-        $this->container->bind(ViewFactoryContract::class, fn () => $this->getFileFactory());
-        $this->container->bind('view', fn () => $this->getFileFactory());
-        $this->container->bind(ViewFinderInterface::class, fn () => $this->getFileFinder());
-
-        Container::setInstance($this->container);
-
-        $this->resolver = $this->getEngineResolver();
-        $this->resolver->register(self::ENGINE_NAME, fn () => $this->getCompilerEngine());
-
-        return $this->booted = true;
-    }
 
     /**
      * Compile a file and return the contents.
      */
     public function compile(string $path, array $data, bool $cache = true): string
     {
-        Blade::shouldCache($cache);
+        static::shouldCache($cache);
 
-        $path = static::normalizePathForOS($path);
+        // normalize path slashes for windows.
+        if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
+            $path = str_replace('/', '\\', $path);
+        } else {
+            $path = str_replace('\\', '/', $path);
+        }
 
         if (! is_file($path)) {
             throw new FileNotFoundException("The $path file does not exist.");
@@ -229,6 +198,7 @@ class Blade
 
         $finder = $this->getFileFinder();
 
+        // replace the namespace for components to the compiled path so the file finder can find them.
         $finder->replaceNamespace('__components', $this->getCompiledPath());
 
         $info = new SplFileInfo($path);
@@ -256,27 +226,18 @@ class Blade
         restore_error_handler();
 
         if (! $cache) {
-            $this->cleanupAfterNotCachedRender($path, $file);
+            $engine = $file->getEngine();
+
+            $engine->forgetCompiledOrNotExpired();
+
+            unlink($engine->getCompiler()->getCompiledPath($path));
+
+            if ($this->filesystem->isEmptyDirectory($compilePath = $this->getCompiledPath())) {
+                $this->filesystem->deleteDirectory($compilePath);
+            }
         }
 
         return $contents;
     }
 
-    /**
-     * Cleanup steps after a compile call for non cached file.
-     */
-    protected function cleanupAfterNotCachedRender(string $path, File $file)
-    {
-        $engine = $file->getEngine();
-
-        $engine->forgetCompiledOrNotExpired();
-
-        unlink($engine->getCompiler()->getCompiledPath($path));
-
-        $fs = new Filesystem;
-
-        if ($fs->isEmptyDirectory($compilePath = $this->getCompiledPath())) {
-            $fs->deleteDirectory($compilePath);
-        }
-    }
 }
