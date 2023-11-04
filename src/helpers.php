@@ -1,13 +1,12 @@
 <?php
 
+use Surgiie\Blade\Blade;
 use Illuminate\Container\Container;
 use Illuminate\Filesystem\Filesystem;
-use Surgiie\Blade\Blade;
 
 if (! function_exists('blade')) {
     /**
      * Return a fresh blade instance.
-     *
      */
     function blade(): Blade
     {

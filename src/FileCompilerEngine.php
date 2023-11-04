@@ -10,13 +10,9 @@ class FileCompilerEngine extends CompilerEngine
 {
     /**
      * Overwritten to not ltrim but to rtrim outbutput buffer.
-     * This assists with preserving spacing/indentation from
-     * the compiled file which is important to preserve so
-     * we dont end up with shifted content in a file.
-     *
-     * @param  string  $path
-     * @param  array  $data
-     * @return void
+     * This helps with preserving spacing/indentation from
+     * the compiled file which we want to preserve, especially
+     * in files where nesting is important, such as yaml.
      */
     protected function evaluatePath($path, $data)
     {
@@ -24,9 +20,6 @@ class FileCompilerEngine extends CompilerEngine
 
         ob_start();
 
-        // We'll evaluate the contents of the view inside a try/catch block so we can
-        // flush out any stray output that might get out before an error occurs or
-        // an exception is thrown. This prevents any partial views from leaking.
         try {
             $this->files->getRequire($path, $data);
         } catch (Throwable $e) {

@@ -19,10 +19,10 @@ class FileCompiler extends BladeCompiler
      * @param  string  $value
      * @return string
      */
-    protected function compileStatements($value)
+    /**protected function compileStatements($value)
     {
-        return preg_replace_callback(
-            '/\h*(?:\#\#BEGIN-\COMPONENT\-CLASS\#\#)?\B@(@?\w+(?:::\w+)?)([ \t]*)(\( ( (?>[^()]+) | (?3) )* \))?/x', function ($match) {
+           return preg_replace_callback(
+          '/\h*(?:\#\#BEGIN-\COMPONENT\-CLASS\#\#)?\B@(@?\w+(?:::\w+)?)([ \t]*)(\( ( (?>[^()]+) | (?3) )* \))?/x', function ($match) {
                 $spacingTotal = strlen($match[0]) - strlen(ltrim($match[0]));
 
                 $spacing = str_repeat(' ', $spacingTotal);
@@ -31,34 +31,25 @@ class FileCompiler extends BladeCompiler
 
                 $this->optionsStack[] = ['spacing' => $spacing];
 
+
                 return $this->compileStatement($match);
             }, $value
         );
-    }
+    }*/
 
-    /**
-     * Determine if the file is expired.
-     *
-     * @param  string  $path
-     */
-    public function isExpired($path): bool
-    {
-        return Blade::shouldCache() ? parent::isExpired($path) : true;
-    }
+    // /**
+    //  * Compile the component tags.
+    //  *
+    //  * @param  string  $value
+    //  */
+    // protected function compileComponentTags($value): string
+    // {
+    //     if (! $this->compilesComponentTags) {
+    //         return $value;
+    //     }
 
-    /**
-     * Compile the component tags.
-     *
-     * @param  string  $value
-     */
-    protected function compileComponentTags($value): string
-    {
-        if (! $this->compilesComponentTags) {
-            return $value;
-        }
-
-        return (new ComponentTagCompiler(
-            $this->path, $this->classComponentAliases, $this->classComponentNamespaces, $this
-        ))->compile($value);
-    }
+    //     return (new ComponentTagCompiler(
+    //         $this->path, $this->classComponentAliases, $this->classComponentNamespaces, $this
+    //     ))->compile($value);
+    // }
 }

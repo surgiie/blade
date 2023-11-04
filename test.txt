@@ -1,0 +1,13 @@
+name: {{ $name }}
+relationships:
+
+@if($yes)
+             foo: bar
+@else
+             bar: baz
+@endif
+
+pets:
+@foreach($dogs as $dog)
+             - {{ $dog }}
+@endforeach

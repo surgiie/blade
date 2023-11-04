@@ -7,30 +7,30 @@ use Surgiie\Blade\Concerns\ModifiesRenderedContent;
 
 class File extends View
 {
-    use ModifiesRenderedContent;
+    // use ModifiesRenderedContent;
 
-    /**Rendering options. */
-    protected array $renderOptions = [];
+    // /**Rendering options. */
+    // protected array $renderOptions = [];
 
-    /**
-     * Set the rendering options.
-     *
-     * @return void
-     */
-    public function setRenderOptions(array $options = [])
-    {
-        $this->renderOptions = $options;
-    }
+    // /**
+    //  * Set the rendering options.
+    //  *
+    //  * @return void
+    //  */
+    // public function setRenderOptions(array $options = [])
+    // {
+    //     $this->renderOptions = $options;
+    // }
 
-    /**
-     * Get the string contents of the view.
-     *
-     * @param  callable  $callback
-     *
-     * @throws \Throwable
-     */
-    public function render(callable $callback = null)
-    {
-        return $this->modifyRenderedContent(parent::render($callback), $this->renderOptions);
-    }
+    // /**
+    //  * Get the string contents of the view.
+    //  *
+    //  * @param  callable  $callback
+    //  *
+    //  * @throws \Throwable
+    //  */
+    // public function render(callable $callback = null)
+    // {
+    //     return $this->modifyRenderedContent(parent::render($callback), $this->renderOptions);
+    // }
 }
