@@ -58,22 +58,22 @@ it('respects escaped directives', function () {
     EOL);
 });
 
-// it('compiles nested variables', function () {
-//     put_blade_test_file('example.txt', <<<'EOL'
-//     {{$name}}
-//         {{$relationship}}
-//     EOL);
+it('compiles nested variables', function () {
+    put_blade_test_file('example.txt', <<<'EOL'
+    {{$name}}
+        {{$relationship}}
+    EOL);
 
-//     $contents = $this->blade->compile(blade_test_file_path('example.txt'), [
-//         'relationship' => 'Uncle',
-//         'name' => 'Bob',
-//     ]);
+    $contents = $this->blade->render(blade_test_file_path('example.txt'), [
+        'relationship' => 'Uncle',
+        'name' => 'Bob',
+    ]);
 
-//     expect($contents)->toBe(<<<'EOL'
-//     Bob
-//         Uncle
-//     EOL);
-// });
+    expect($contents)->toBe(<<<'EOL'
+    Bob
+        Uncle
+    EOL);
+});
 
 // it('escapes variable html', function () {
 //     put_blade_test_file('example.txt', <<<'EOL'

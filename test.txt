@@ -7,7 +7,4 @@ relationships:
              bar: baz
 @endif
 
-pets:
-@foreach($dogs as $dog)
-             - {{ $dog }}
-@endforeach
+@test("foo")

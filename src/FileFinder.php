@@ -27,13 +27,6 @@ class FileFinder extends FileViewFinder
         }, $this->extensions);
     }
 
-    /**
-     * Find the given view in the list of paths.
-     *
-     * @param  string  $name
-     * @param  array  $paths
-     * @return string
-     */
     protected function findInPaths($name, $paths)
     {
         try {

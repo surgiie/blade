@@ -22,15 +22,9 @@ class File extends View
     //     $this->renderOptions = $options;
     // }
 
-    // /**
-    //  * Get the string contents of the view.
-    //  *
-    //  * @param  callable  $callback
-    //  *
-    //  * @throws \Throwable
-    //  */
-    // public function render(callable $callback = null)
-    // {
-    //     return $this->modifyRenderedContent(parent::render($callback), $this->renderOptions);
-    // }
+    public function render(callable $callback = null)
+    {
+        return parent::render($callback);
+        // return $this->modifyRenderedContent(parent::render($callback), $this->renderOptions);
+    }
 }

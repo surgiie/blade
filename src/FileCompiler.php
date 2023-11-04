@@ -8,20 +8,17 @@ use Surgiie\Blade\Concerns\CompilesIncludes;
 
 class FileCompiler extends BladeCompiler
 {
-    use CompilesIncludes, CompilesComponents;
+    // use CompilesIncludes, CompilesComponents;
 
     /**The options stack for each statement.*/
     protected array $optionsStack = [];
 
     /**
      * Compile Blade statements that start with "@".
-     *
-     * @param  string  $value
-     * @return string
      */
-    /**protected function compileStatements($value)
+    /*protected function compileStatements($value)
     {
-           return preg_replace_callback(
+        return preg_replace_callback(
           '/\h*(?:\#\#BEGIN-\COMPONENT\-CLASS\#\#)?\B@(@?\w+(?:::\w+)?)([ \t]*)(\( ( (?>[^()]+) | (?3) )* \))?/x', function ($match) {
                 $spacingTotal = strlen($match[0]) - strlen(ltrim($match[0]));
 

@@ -3,6 +3,8 @@
 namespace Surgiie\Blade;
 
 use SplFileInfo;
+use Surgiie\Blade\FileFactory;
+use Surgiie\Blade\FileCompiler;
 use Illuminate\Events\Dispatcher;
 use Illuminate\Container\Container;
 use Illuminate\Filesystem\Filesystem;
@@ -17,26 +19,38 @@ class BladeEngine
     public const ENGINE_NAME = 'blade';
     protected string $cachePath;
     protected ?FileFinder $fileFinder = null;
-    protected ?FileFactory $fileFactory = null;
+    protected ?FileFactory $factory = null;
     protected ?EngineResolver $resolver = null;
-    protected ?FileCompiler $fileCompiler = null;
-    protected ?FileCompilerEngine $compilerEngine = null;
+    protected ?FileCompiler $compiler = null;
+    protected ?FileCompilerEngine $engine = null;
 
     public function __construct(ContainerContract $container, string $cachePath)
     {
         $this->container = $container;
         $this->cachePath = $cachePath;
 
-        $this->container->bind(ViewFactoryContract::class, fn () => $this->getFileFactory());
-        $this->container->bind('view', fn () => $this->getFileFactory());
-        $this->container->bind(ViewFinderInterface::class, fn () => $this->getFileFinder());
+        $this->container->singleton(ViewFactoryContract::class, fn () => $this->factory());
+
+        $this->container->singleton('view', fn () => $this->factory());
+        $this->container->singleton(ViewFinderInterface::class, fn () => $this->finder());
 
         Container::setInstance($this->container);
 
-        $this->getEngineResolver()->register(self::ENGINE_NAME, fn () => $this->getCompilerEngine());
+        $this->resolver()->register(self::ENGINE_NAME, fn () => $this->engine());
     }
 
-    public function getFileFinder(): FileFinder
+    public function __call(string $name, array $arguments)
+    {
+        $compiler = $this->compiler();
+
+        if (method_exists($compiler, $name)) {
+            return $compiler->{$name}(...$arguments);
+        }
+
+        return $this->factory->{$name}(...$arguments);
+    }
+
+    public function finder(): FileFinder
     {
         return $this->fileFinder ??= new FileFinder(new Filesystem, []);
     }
@@ -48,7 +62,7 @@ class BladeEngine
         return $this;
     }
 
-    protected function getEngineResolver(): EngineResolver
+    protected function resolver(): EngineResolver
     {
         if (! is_null($this->resolver)) {
             return $this->resolver;
@@ -57,11 +71,11 @@ class BladeEngine
         return $this->resolver = new EngineResolver();
     }
 
-    protected function getFileFactory(): FileFactory
+    protected function factory(): FileFactory
     {
-        return $this->fileFactory ??= new FileFactory(
-            $this->getEngineResolver(),
-            $this->getFileFinder(),
+        return $this->factory ??= new FileFactory(
+            $this->resolver(),
+            $this->finder(),
             new Dispatcher($this->container)
         );
     }
@@ -71,14 +85,14 @@ class BladeEngine
         return $this->cachePath;
     }
 
-    protected function getCompilerEngine(): FileCompilerEngine
+    protected function engine(): FileCompilerEngine
     {
-        return $this->compilerEngine ??= new FileCompilerEngine($this->getFileCompiler());
+        return $this->engine ??= new FileCompilerEngine($this->compiler());
     }
 
-    protected function getFileCompiler(): FileCompiler
+    protected function compiler(): FileCompiler
     {
-        return  $this->fileCompiler ??= new FileCompiler(new Filesystem, $this->getCachePath());
+        return  $this->compiler ??= new FileCompiler(new Filesystem, $this->getCachePath());
     }
 
     public function render(string $path, array $vars = []): string
@@ -89,14 +103,14 @@ class BladeEngine
 
         $info = new SplFileInfo($path);
 
-        $finder = $this->getFileFinder();
+        $finder = $this->finder();
         // // replace the namespace for components to the compiled path so the file finder can find them.
         // $finder->replaceNamespace('__components', $this->getCompiledPath());
 
         // ensure we're in a clean state before rendering so we can render files on the fly without conflicts.
         $finder->flush();
 
-        $factory = $this->getFileFactory();
+        $factory = $this->factory();
 
         // dont use realpath on phar file paths as it will always be false, since phar files are virtual.
         $directory = str_starts_with($path, 'phar://') ? dirname($path) : dirname($info->getRealPath());
@@ -104,8 +118,6 @@ class BladeEngine
         // tell the finder about the directory this file is in and it's file extension.
         $finder->setPaths([$directory]);
         $factory->addExtension($info->getExtension(), self::ENGINE_NAME);
-
-        $file = $factory->make($info->getFilename(), $vars);
 
         // Set an error handler that throws an exception on undefined variables instead of a warning.
         set_error_handler(function ($severity, $message, $file, $line) {
@@ -123,16 +135,16 @@ class BladeEngine
 
         // render and return the contents.
         try {
-            $contents = $file->render();
+            $contents = $factory->make($info->getFilename(), $vars)->render();
         } catch(\Exception $e){
             throw $e;
         } finally {
             restore_error_handler();
         }
         // if (! $cache) {
-        //     $engine = $file->getEngine();
+            //     $engine = $file->getEngine();
 
-        //     $engine->forgetCompiledOrNotExpired();
+            //     $engine->forgetCompiledOrNotExpired();
 
         //     unlink($engine->getCompiler()->getCompiledPath($path));
 

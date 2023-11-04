@@ -135,25 +135,12 @@ class FileFactory extends Factory
     //     return pathinfo($path)['extension'] ?? '';
     // }
 
-    // /**
-    //  * Get the appropriate view engine for the given path.
-    //  *
-    //  * @param  string  $path
-    //  * @return \Illuminate\Contracts\View\Engine
-    //  */
+
     // public function getEngineFromPath($path)
     // {
     //     return $this->engines->resolve(Blade::ENGINE_NAME);
     // }
 
-    // /**
-    //  * Create a new view instance from the given arguments.
-    //  *
-    //  * @param  string  $view
-    //  * @param  string  $path
-    //  * @param  array  $data
-    //  * @return \Surgiie\Blade\File
-    //  */
     // protected function viewInstance($view, $path, $data)
     // {
     //     return new File($this, $this->getEngineFromPath($path), $view, $path, $data);
