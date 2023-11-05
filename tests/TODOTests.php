@@ -49,7 +49,7 @@ use Surgiie\Blade\Exceptions\FileNotFoundException;
 // });
 
 // it('can compile @includeIf', function () {
-//     write_mock_file('example.yaml', <<<'EOL'
+//     write_mock_file('test.yaml', <<<'EOL'
 //     name: {{ $name }}
 //     favorite_food: {{ $favoriteFood }}
 //     @includeIf('include.yaml')
@@ -62,7 +62,7 @@ use Surgiie\Blade\Exceptions\FileNotFoundException;
 //         @endif
 //     EOL);
 
-//     $contents = testBlade()->compile(test_mock_path('example.yaml'), [
+//     $contents = testBlade()->compile(test_mock_path('test.yaml'), [
 //         'name' => 'Bob',
 //         'favoriteFood' => 'Pizza',
 //         'includeAddress' => true,
@@ -108,7 +108,7 @@ use Surgiie\Blade\Exceptions\FileNotFoundException;
 // });
 
 // it('can compile nested @include', function () {
-//     write_mock_file('example.yaml', <<<'EOL'
+//     write_mock_file('test.yaml', <<<'EOL'
 //     name: {{ $name }}
 //     favorite_food: {{ $favoriteFood }}
 //         @include('include.yaml')
@@ -121,7 +121,7 @@ use Surgiie\Blade\Exceptions\FileNotFoundException;
 //         @endif
 //     EOL);
 
-//     $contents = testBlade()->compile(test_mock_path('example.yaml'), [
+//     $contents = testBlade()->compile(test_mock_path('test.yaml'), [
 //         'name' => 'Bob',
 //         'favoriteFood' => 'Pizza',
 //         'includeAddress' => true,
@@ -167,7 +167,7 @@ use Surgiie\Blade\Exceptions\FileNotFoundException;
 // });
 
 // it('can compile @switch', function () {
-//     write_mock_file('example.yaml', <<<'EOL'
+//     write_mock_file('test.yaml', <<<'EOL'
 //     name: {{ $name }}
 //     favorite_food: {{ $favoriteFood }}
 //     family_info:
@@ -181,7 +181,7 @@ use Surgiie\Blade\Exceptions\FileNotFoundException;
 //     @endswitch
 //     EOL);
 
-//     $contents = testBlade()->compile(test_mock_path('example.yaml'), [
+//     $contents = testBlade()->compile(test_mock_path('test.yaml'), [
 //         'name' => 'Bob',
 //         'favoriteFood' => 'Pizza',
 //         'oldest' => true,
@@ -226,7 +226,7 @@ use Surgiie\Blade\Exceptions\FileNotFoundException;
 //     name: {{ $name }}
 //     EOL);
 
-//     write_mock_file('example.yaml', <<<'EOL'
+//     write_mock_file('test.yaml', <<<'EOL'
 //     <x-component.yaml :name='$name' />
 //     favorite_food: {{ $favoriteFood }}
 //     family_info:
@@ -240,7 +240,7 @@ use Surgiie\Blade\Exceptions\FileNotFoundException;
 //     @endswitch
 //     EOL);
 
-//     $contents = testBlade()->compile(test_mock_path('example.yaml'), [
+//     $contents = testBlade()->compile(test_mock_path('test.yaml'), [
 //         'name' => 'Bob',
 //         'favoriteFood' => 'Pizza',
 //         'oldest' => true,

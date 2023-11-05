@@ -1,5 +1,9 @@
 <?php
 
+afterAll(function () {
+    tear_down();
+});
+
 it('renders variables', function () {
     $path = write_mock_file('example.txt', <<<'EOL'
     {{$relationship}}

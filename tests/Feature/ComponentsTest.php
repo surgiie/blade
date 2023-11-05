@@ -1,12 +1,15 @@
 <?php
 
+afterAll(function () {
+    tear_down();
+});
 
 it('can render @component', function () {
     write_mock_file('component.yaml', <<<'EOL'
     data: {{ $data }}
     EOL);
 
-    $path = write_mock_file('example.yaml', <<<'EOL'
+    $path = write_mock_file('test.yaml', <<<'EOL'
     name: {{ $name }}
     favorite_food: {{ $favoriteFood }}
     @component('component.yaml', ['data'=>'foobar'])
@@ -42,7 +45,7 @@ it('can render nested @component', function () {
     nested: true
     EOL);
 
-    $path = write_mock_file('example.yaml', <<<'EOL'
+    $path = write_mock_file('test.yaml', <<<'EOL'
     name: {{ $name }}
         favorite_food: {{ $favoriteFood }}
         @component('component.yaml', ['data'=>'foobar'])
@@ -77,7 +80,7 @@ it('can render @component via absolute path', function () {
     data: {{ $data }}
     EOL);
 
-    $file = write_mock_file('example.yaml', <<<"EOL"
+    $file = write_mock_file('test.yaml', <<<"EOL"
     name: {{ \$name }}
     favorite_food: {{ \$favoriteFood }}
     @component('$component', ['data'=>'foobar'])
@@ -112,7 +115,7 @@ it('can render component @slot', function () {
     {{ $format ?? 'format: yaml' }}
     EOL);
 
-    $file = write_mock_file('example.yaml', <<<"EOL"
+    $file = write_mock_file('test.yaml', <<<"EOL"
     name: {{ \$name }}
     favorite_food: {{ \$favoriteFood }}
     @component('$component', ['data'=>'foobar'])

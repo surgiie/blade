@@ -1,5 +1,9 @@
 <?php
 
+afterAll(function () {
+    tear_down();
+});
+
 it('respects escaped directives', function () {
     write_mock_file('example.txt', <<<'EOL'
     {{$name}}

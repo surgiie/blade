@@ -7,13 +7,6 @@ use Illuminate\Filesystem\Filesystem;
 
 uses(TestCase::class)->in(__DIR__);
 
-
-afterAll(function () {
-    $fs = new Filesystem;
-    $fs->deleteDirectory(test_mock_path());
-});
-
-
 function testBlade()
 {
     return (new Blade(cachePath: test_mock_path(".cache")));
@@ -26,16 +19,19 @@ function test_mock_path(string $path = '')
 
 function tear_down()
 {
-    @mkdir($mockDir = test_mock_path());
+    (new \Illuminate\Filesystem\Filesystem)->deleteDirectory(test_mock_path());
+    testBlade()->deleteCacheDirectory();
 
-    $fs = new Filesystem;
-    $fs->deleteDirectory($mockDir);
+    // @mkdir($mockDir = test_mock_path());
 
-    $fs->deleteDirectory(test_mock_path(".cache"));
-    // make sure we are on a fresh cache/resolver, to avoid collisions between tests
-    // if we happen to use the same component/file names but different content.
-    Component::flushCache();
-    Component::forgetComponentsResolver();
+    // $fs = new Filesystem;
+    // $fs->deleteDirectory($mockDir);
+
+    // $fs->deleteDirectory(test_mock_path(".cache"));
+    // // make sure we are on a fresh cache/resolver, to avoid collisions between tests
+    // // if we happen to use the same component/file names but different content.
+    // Component::flushCache();
+    // Component::forgetComponentsResolver();
 }
 
 function write_mock_file(string $file, string $contents)

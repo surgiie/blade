@@ -1,7 +1,11 @@
 <?php
 
+afterAll(function () {
+    tear_down();
+});
+
 it('can render @if', function () {
-    $path = write_mock_file('example.yaml', <<<'EOL'
+    $path = write_mock_file('test.yaml', <<<'EOL'
     name: {{ $name }}
     favorite_food: {{ $favoriteFood }}
     contact_info:
@@ -27,7 +31,7 @@ it('can render @if', function () {
 });
 
 it('can render nested @if', function () {
-    $path = write_mock_file('example.yaml', <<<'EOL'
+    $path = write_mock_file('test.yaml', <<<'EOL'
     name: {{ $name }}
     favorite_food: {{ $favoriteFood }}
     contact_info:
@@ -53,7 +57,7 @@ it('can render nested @if', function () {
 });
 
 it('can render @else', function () {
-    $path = write_mock_file('example.yaml', <<<'EOL'
+    $path = write_mock_file('test.yaml', <<<'EOL'
     name: {{ $name }}
     favorite_food: {{ $favoriteFood }}
     phone: 1234567890
@@ -79,7 +83,7 @@ it('can render @else', function () {
 });
 
 it('can render nested @else', function () {
-    $path = write_mock_file('example2.yaml', <<<'EOL'
+    $path = write_mock_file('test.yaml', <<<'EOL'
     name: {{ $name }}
     favorite_food: {{ $favoriteFood }}
     phone: 1234567890

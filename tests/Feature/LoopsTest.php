@@ -1,8 +1,11 @@
 <?php
 
+afterAll(function () {
+    tear_down();
+});
 
 it('can render @foreach', function () {
-    $path = write_mock_file('example.yaml', <<<'EOL'
+    $path = write_mock_file('test.yaml', <<<'EOL'
     name: {{ $name }}
     favorite_food: {{ $favoriteFood }}
     pets:
@@ -29,7 +32,7 @@ it('can render @foreach', function () {
 
 it('can render nested @foreach', function () {
 
-    $path = write_mock_file('example.yaml', <<<'EOL'
+    $path = write_mock_file('test.yaml', <<<'EOL'
     name: {{ $name }}
     favorite_food: {{ $favoriteFood }}
     pets:
@@ -55,7 +58,7 @@ it('can render nested @foreach', function () {
 
 
 it('can render @forelse', function () {
-    $path = write_mock_file('example.yaml', <<<'EOL'
+    $path = write_mock_file('test.yaml', <<<'EOL'
     name: {{ $name }}
     favorite_food: {{ $favoriteFood }}
     pets:
@@ -82,7 +85,7 @@ it('can render @forelse', function () {
 });
 
 it('can render nested @forelse', function () {
-    $path = write_mock_file('example.yaml', <<<'EOL'
+    $path = write_mock_file('test.yaml', <<<'EOL'
     name: {{ $name }}
     favorite_food: {{ $favoriteFood }}
     pets:
@@ -110,7 +113,7 @@ it('can render nested @forelse', function () {
 
 
 it('can render @for', function () {
-    $path = write_mock_file('example.yaml', <<<'EOL'
+    $path = write_mock_file('test.yaml', <<<'EOL'
     name: {{ $name }}
     favorite_food: {{ $favoriteFood }}
     favorite_numbers:
@@ -160,7 +163,7 @@ it('can render nested @for', function () {
 });
 
 it('can render @while', function () {
-    $path = write_mock_file('example.yaml', <<<'EOL'
+    $path = write_mock_file('test.yaml', <<<'EOL'
     name: {{ $name }}
     favorite_food: {{ $favoriteFood }}
     favorite_numbers:
