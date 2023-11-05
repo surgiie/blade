@@ -1,6 +1,6 @@
 <?php
 
-namespace Surgiie\Blade\Concerns;
+namespace Surgiie\Blade\Concerns\Compilers;
 
 use Illuminate\Support\Str;
 use Surgiie\Blade\AnonymousComponent;
@@ -9,10 +9,10 @@ use Surgiie\Blade\FileCompiler;
 
 trait CompilesComponents
 {
-    use ParsesComponentFilePath;
+    // use ParsesComponentFilePath;
 
     /**The options for components passed down from start component compile. */
-    protected array $componentOptionsStack = [];
+    protected array $componentModifiersStack = [];
 
     /**
      * Compile the end-component statements into valid PHP.
@@ -21,21 +21,15 @@ trait CompilesComponents
      */
     protected function compileEndComponent()
     {
-        $options = array_pop($this->componentOptionsStack);
-
-        $options['type'] = 'component';
+        $options = array_pop($this->modifiersStack);
+        // $options = array_pop($this->componentModifiersStack);
 
         $options = var_export($options, true);
 
         return "<?php echo \$__env->renderComponent($options); ?> ";
     }
 
-    /**
-     * Compile the component statements into valid PHP.
-     *
-     * @param  string  $expression
-     * @return string
-     */
+    /*
     protected function compileComponent($expression)
     {
         [$component, $alias, $data] = str_contains($expression, ',')
@@ -48,17 +42,14 @@ trait CompilesComponents
         } else {
             $compiled = "<?php \$__env->startComponent{$expression}; ?>";
         }
+
         // pass the options from stack down since render is done in `compileEndComponent`
-        $this->componentOptionsStack[] = array_pop($this->optionsStack);
+        $this->componentModifiersStack[] = array_pop($this->modifiersStack);
 
         return $compiled;
-    }
+    }*/
 
-    /**
-     * Compile a class component opening.
-     *
-     * @return string
-     */
+
     public static function compileComponentClassOpening(string $component, string $alias, string $data, string $hash, FileCompiler $compiler)
     {
         [$path, $class] = ComponentTagCompiler::getComponentFilePath($cleanAlias = str_replace("'", '', $alias), $compiler->getPath());

@@ -1,11 +1,11 @@
 <?php
 
-namespace Surgiie\Blade\Concerns;
+namespace Surgiie\Blade\Concerns\Modifiers;
 
-trait ModifiesRenderedContent
+trait ModifiesSpacing
 {
     /**Modify the given content using the given options. */
-    protected function modifyRenderedContent(string $content, array $options = [])
+    protected function modifySpacing(string $content, array $options = [])
     {
         $result = [];
         $lines = explode(PHP_EOL, $content);

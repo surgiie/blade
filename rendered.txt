@@ -1,6 +1,8 @@
 name: Surgiie
-relationships:
-
-             foo: bar
-
-foo
+    favorite_food: Pizza
+        data: foobar
+            nested: true
+favorite_numbers:
+    - '0'
+    - '1'
+    - '2'

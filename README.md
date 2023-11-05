@@ -2,7 +2,27 @@
 
 ![tests](https://github.com/surgiie/blade/actions/workflows/tests.yml/badge.svg)
 
-An extended version of the Laravel Blade engine so that it can be used on any textual files.
+An extended standalone version of the Laravel Blade engine so that it can be used on any textual file.
+
+## Why?
+
+There are several standalone blade engines out there, but there all meant for html files where spacing is not important.
+
+I wanted the ability to use the blade engine for rendering template files such as yaml and wanted it to work basically on any textual file on the fly.
+
+The blade engine trims output buffer and some compiled directives dont preserve nesting of the rendered content, for example, if you have a file like this:
+
+```yaml
+# example.yaml
+name: {{ $name }}
+
+    @include("partial.yaml")
+```
+Each line of the contents of the `@include` should also be indented by the number of spaces left of the `@include` directive, but it's not.
+
+This is a problem, because the rendered result will not match the original file structure in terms of nesting/spacing, which is problematic when rendering files like `.yaml`
+
+where nesting is semantically important.
 
 ## Installation
 
@@ -17,29 +37,46 @@ composer require surgiie/blade
 
 use Surgiie\Blade\Blade;
 use Illuminate\Container\Container;
-use Illuminate\Filesystem\Filesystem;
-
-$fs = new Filesystem;
-
 
 $blade = new Blade(
+    // pass optional container|default : Container::getInstance()
     container: new Container,
-    filesystem: $fs,
-    // default: vendor/surgiie/blade/.compiled
-    compiledPath: "/path/to/cached/compiled/files"
+    //and optional cache path|default: vendor/surgiie/blade/.cache
+    cachePath: "/path/to/cached/compiled/files"
 );
 
-// use absolute path to file
-$contents = $blade->compile("/path/to/file", ['var'=>'example']);
+// then render any textual file by path and vars:
+$contents = $blade->render("/path/to/file", ['var'=>'example']);
+```
 
-// delete compiled files which are stored in
-$fs->deleteDirectory($blade->getCompiledPath());
+### Delete Cached Files
+You can delete cached files using the `deleteCacheDirectory` method:
 
-// or if you dont want to use cached compiled files, i.e force re-render:
-$contents = $blade->compile("/path/to/file", ['var'=>'example'], cache: false);
+```php
+
+$blade = new Blade();
+
+$blade->deleteCacheDirectory();
+```
+
+**Tip** - Consider doing this before rendering to force render files.
+
+
+### Custom Directives
+
+You can create a custom blade directive using the `directive` method:
+
+
+```php
+$blade = new Blade();
+
+$blade->directive('echo', fn ($expression) => "<?php echo {$expression}; ?>");
+
+$contents = $blade->render("/example.txt", ['name' => 'Surgiie', 'dogs'=>['luffy', 'zoro', 'sanji']]);
 
 ```
-### Using Components
+
+<!-- ### Using Components
 
 You may also use Blade `x-*` components in your file:
 
@@ -99,4 +136,4 @@ Components are resolved using a relative path from the filed being compiled, if 
 <x--components.example data="Something" />
 ```
 
-This will resolve the path to look for the file to `/components/example` instead of `/<file-being-compiled-path>/components/example`.
+This will resolve the path to look for the file to `/components/example` instead of `/<file-being-compiled-path>/components/example`. -->

@@ -1,0 +1,5 @@
+some:
+  nest:
+    value: 1
+    other: 2
+    third: 3

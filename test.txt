@@ -1,10 +1,10 @@
 name: {{ $name }}
-relationships:
-
-@if($yes)
-             foo: bar
-@else
-             bar: baz
-@endif
-
-@test("foo")
+    favorite_food: {{ $favoriteFood }}
+        @component('/home/surgiie/projects/blade/component.yaml', ['data'=>'foobar'])
+        @endcomponent
+favorite_numbers:
+@php($count = 0)
+@while ($count < 3)
+    - '{{ $count }}'
+    @php($count ++)
+@endwhile

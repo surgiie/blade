@@ -9,7 +9,7 @@ use Throwable;
 class FileCompilerEngine extends CompilerEngine
 {
     /**
-     * Overwritten to not ltrim but to rtrim outbutput buffer.
+     * Overwritten to not ltrim but to rtrim output buffer.
      * This helps with preserving spacing/indentation from
      * the compiled file which we want to preserve, especially
      * in files where nesting is important, such as yaml.
@@ -29,21 +29,12 @@ class FileCompilerEngine extends CompilerEngine
         return rtrim(ob_get_clean());
     }
 
-    /**
-     * Handle a view render exception.
-     *
-     * @param  int  $obLevel
-     * @return void
-     */
     protected function handleViewException(Throwable $e, $obLevel)
     {
         $class = get_class($e);
         PhpEngine::handleViewException(new $class($this->getMessage($e)), $obLevel);
     }
 
-    /**
-     * Get a formatted exception message for a compile error.
-     */
     protected function getMessage(Throwable $e): string
     {
         $msg = $e->getMessage();

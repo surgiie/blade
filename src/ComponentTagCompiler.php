@@ -19,11 +19,11 @@ class ComponentTagCompiler extends BladeComponentTagCompiler
     //  */
     // protected static array $componentToFileStack = [];
 
-    // public function __construct(string $path, array $aliases = [], array $namespaces = [], ?FileCompiler $compiler = null)
-    // {
-    //     $this->path = $path;
-    //     parent::__construct($aliases, $namespaces, $compiler);
-    // }
+    public function __construct(string $path, array $aliases = [], array $namespaces = [], ?FileCompiler $compiler = null)
+    {
+        $this->path = $path;
+        parent::__construct($aliases, $namespaces, $compiler);
+    }
 
     // /**
     //  * Register a component to file entry
