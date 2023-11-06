@@ -8,15 +8,13 @@ trait ModifiesSpacing
     protected function modifySpacing(string $content, array $options = [])
     {
         $result = [];
-        $lines = explode(PHP_EOL, $content);
-
         $spacing = $options['spacing'] ?? false;
 
-        foreach ($lines as $line) {
-            if ($spacing) {
+        foreach (explode(PHP_EOL, $content) as $line) {
+
+            if($spacing){
                 $line = $spacing.$line;
             }
-
             $result[] = rtrim($line);
         }
 

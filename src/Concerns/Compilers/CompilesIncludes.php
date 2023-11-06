@@ -11,8 +11,7 @@ trait CompilesIncludes
     protected function compileInclude($expression)
     {
         $modifiers = var_export(array_pop($this->modifiersStack), true);
-
-        return str_replace("render()", "render(modifiers: $modifiers)", parent::compileInclude($expression));
+        return str_replace("render()", "render(modifiers: $modifiers)", parent::compileInclude($expression)) . PHP_EOL;
     }
 
     /**
@@ -24,7 +23,7 @@ trait CompilesIncludes
     {
         $modifiers = var_export(array_pop($this->modifiersStack), true);
 
-        return str_replace("render()", "render(modifiers: $modifiers)", parent::compileIncludeIf($expression));
+        return str_replace("render()", "render(modifiers: $modifiers)", parent::compileIncludeIf($expression))  . PHP_EOL;
     }
 
     /**
@@ -35,7 +34,7 @@ trait CompilesIncludes
     {
         $modifiers = var_export(array_pop($this->modifiersStack), true);
 
-        return str_replace(");", ", modifiers: $modifiers);", parent::compileIncludeWhen($expression));
+        return str_replace(");", ", modifiers: $modifiers);", parent::compileIncludeWhen($expression)) . PHP_EOL;
     }
 
     /**
@@ -47,7 +46,7 @@ trait CompilesIncludes
     {
         $modifiers = var_export(array_pop($this->modifiersStack), true);
 
-        return str_replace(");", ", modifiers: $modifiers);", parent::compileIncludeUnless($expression));
+        return str_replace(");", ", modifiers: $modifiers);", parent::compileIncludeUnless($expression)) . PHP_EOL;
     }
 
     /**
@@ -59,6 +58,6 @@ trait CompilesIncludes
 
         $modifiers = var_export(array_pop($this->modifiersStack), true);
 
-        return str_replace("render()", "render(modifiers: $modifiers)", parent::compileIncludeFirst($expression));
+        return str_replace("render()", "render(modifiers: $modifiers)", parent::compileIncludeFirst($expression)) . PHP_EOL;
     }
 }

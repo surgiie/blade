@@ -109,3 +109,64 @@ it('can render nested @else', function () {
         street_info: none
     EOL);
 });
+
+
+
+it('can render @switch', function () {
+    $path = write_mock_file('test.yaml', <<<'EOL'
+    name: {{ $name }}
+    favorite_food: {{ $favoriteFood }}
+    family_info:
+    @switch($oldest)
+    @case(1)
+        oldest_child: true
+        @break
+    @case(2)
+        oldest_child: false
+        @break
+    @endswitch
+    EOL);
+
+    $contents = testBlade()->render($path, [
+        'name' => 'Bob',
+        'favoriteFood' => 'Pizza',
+        'oldest' => true,
+    ]);
+
+    expect($contents)->toBe(<<<'EOL'
+    name: Bob
+    favorite_food: Pizza
+    family_info:
+        oldest_child: true
+    EOL);
+});
+
+it('can render nested @switch', function () {
+    $path = write_mock_file('example.yaml', <<<'EOL'
+        name: {{ $name }}
+        favorite_food: {{ $favoriteFood }}
+        family_info:
+            @switch($oldest)
+            @case(1)
+                oldest_child: true
+                @break
+            @case(2)
+                oldest_child: false
+                @break
+            @endswitch
+        EOL);
+
+    $contents = testBlade()->render($path, [
+        'name' => 'Bob',
+        'favoriteFood' => 'Pizza',
+        'oldest' => true,
+    ]);
+
+    expect($contents)->toBe(<<<'EOL'
+        name: Bob
+        favorite_food: Pizza
+        family_info:
+                oldest_child: true
+        EOL);
+});
+

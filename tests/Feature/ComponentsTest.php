@@ -1,7 +1,7 @@
 <?php
 
 afterAll(function () {
-    tear_down();
+    // tear_down();
 });
 
 it('can render @component', function () {
@@ -39,7 +39,6 @@ it('can render @component', function () {
 });
 
 it('can render nested @component', function () {
-
     write_mock_file('component.yaml', <<<'EOL'
     data: {{ $data }}
     nested: true
@@ -135,5 +134,73 @@ it('can render component @slot', function () {
     favorite_food: Pizza
     data: foobar
     format: json
+    EOL);
+});
+
+
+it('can render blade x anonymous components', function () {
+    write_mock_file('component.yaml', <<<'EOL'
+    name: {{ $name }}
+    EOL);
+
+    $path = write_mock_file('test.yaml', <<<'EOL'
+    <x-component.yaml :name='$name' />
+    favorite_food: {{ $favoriteFood }}
+    family_info:
+    @switch($oldest)
+    @case(1)
+        oldest_child: true
+        @break
+    @case(2)
+        oldest_child: false
+        @break
+    @endswitch
+    EOL);
+
+    $contents = testBlade()->render($path, [
+        'name' => 'Bob',
+        'favoriteFood' => 'Pizza',
+        'oldest' => true,
+    ]);
+
+    expect($contents)->toBe(<<<'EOL'
+    name: Bob
+    favorite_food: Pizza
+    family_info:
+        oldest_child: true
+    EOL);
+});
+
+it('can render nested blade x anonymous components', function () {
+
+    write_mock_file('component.yaml', <<<'EOL'
+    name: {{ $name }}
+    EOL);
+
+    $path = write_mock_file('example.yaml', <<<'EOL'
+        <x-component.yaml :name='$name' />
+    favorite_food: {{ $favoriteFood }}
+    family_info:
+    @switch($oldest)
+    @case(1)
+        oldest_child: true
+        @break
+    @case(2)
+        oldest_child: false
+        @break
+    @endswitch
+    EOL);
+
+    $contents = testBlade()->render($path, [
+        'name' => 'Ricky',
+        'favoriteFood' => 'Pasta',
+        'oldest' => true,
+    ]);
+
+    expect($contents)->toBe(<<<'EOL'
+        name: Ricky
+    favorite_food: Pasta
+    family_info:
+        oldest_child: true
     EOL);
 });

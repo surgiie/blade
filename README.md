@@ -38,11 +38,12 @@ composer require surgiie/blade
 use Surgiie\Blade\Blade;
 use Illuminate\Container\Container;
 
+// set a cache directory for compiled cache files, defaults to vendor/surgiie/blade/.cache
+Blade::setCachePath("/tmp/.blade");
+
 $blade = new Blade(
-    // pass optional container|default : Container::getInstance()
+    // pass optional container, defaults to: Container::getInstance() or new instance.
     container: new Container,
-    //and optional cache path|default: vendor/surgiie/blade/.cache
-    cachePath: "/path/to/cached/compiled/files"
 );
 
 // then render any textual file by path and vars:
@@ -54,9 +55,7 @@ You can delete cached files using the `deleteCacheDirectory` method:
 
 ```php
 
-$blade = new Blade();
-
-$blade->deleteCacheDirectory();
+Blade::deleteCacheDirectory();
 ```
 
 **Tip** - Consider doing this before rendering to force render files.

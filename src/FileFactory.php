@@ -2,6 +2,7 @@
 
 namespace Surgiie\Blade;
 
+use Surgiie\Blade\Blade;
 use Illuminate\View\Factory;
 use InvalidArgumentException;
 use Surgiie\Blade\Concerns\Modifiers\ModifiesSpacing;
@@ -16,36 +17,6 @@ class FileFactory extends Factory
         return $name;
     }
 
-    // /**
-    //  * Require the component class if needed.
-    //  *
-    //  * @return void
-    //  */
-    // public function requireComponentClass(string $class, string $path)
-    // {
-    //     if (! class_exists($class)) {
-    //         $class = require_once $path;
-
-    //         if (is_numeric($class) || ! class_exists($class)) {
-    //             throw new InvalidArgumentException(
-    //                 "File [{$path}] must return ::class constant."
-    //             );
-    //         }
-    //     }
-    // }
-
-
-
-    // /**
-    //  * Get the rendered content of the view based on a given condition.
-    //  *
-    //  * @param  bool  $condition
-    //  * @param  string  $view
-    //  * @param  array  $data
-    //  * @param  array  $mergeData
-    //  * @param  array  $modifiers
-    //  * @return string
-    //  */
     public function renderWhen($condition, $view, $data = [], $mergeData = [], $modifiers = [])
     {
         if (! $condition) {
@@ -62,25 +33,11 @@ class FileFactory extends Factory
         return $this->renderWhen(! $condition, $view, $data, $mergeData, $modifiers);
     }
 
-    /**
-     * Render the current component.
-     *
-     * @return string
-     */
     public function renderComponent(?array $modifiers = [])
     {
-        return $this->modifySpacing( parent::renderComponent(), $modifiers);
+        return $this->modifySpacing(parent::renderComponent(), $modifiers);
     }
 
-    // /**
-    //  * Get the evaluated view contents for the given view.
-    //  *
-    //  * @param  string  $view
-    //  * @param  array  $data
-    //  * @param  array  $mergeData
-    //  * @param  array  $modifiers
-    //  * @return \Surgiie\Blade\File
-    //  */
     public function make($view, $data = [], $mergeData = [])
     {
         $file = parent::make($view, $data, $mergeData);

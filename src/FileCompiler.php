@@ -32,19 +32,14 @@ class FileCompiler extends BladeCompiler
         );
     }
 
-    // /**
-    //  * Compile the component tags.
-    //  *
-    //  * @param  string  $value
-    //  */
-    // protected function compileComponentTags($value): string
-    // {
-    //     if (! $this->compilesComponentTags) {
-    //         return $value;
-    //     }
+    protected function compileComponentTags($value): string
+    {
+        if (! $this->compilesComponentTags) {
+            return $value;
+        }
 
-    //     return (new ComponentTagCompiler(
-    //         $this->path, $this->classComponentAliases, $this->classComponentNamespaces, $this
-    //     ))->compile($value);
-    // }
+        return (new ComponentTagCompiler(
+            $this->path, $this->classComponentAliases, $this->classComponentNamespaces, $this
+        ))->compile($value);
+    }
 }

@@ -3,6 +3,7 @@
 namespace Surgiie\Blade\Concerns\Compilers;
 
 use Illuminate\Support\Str;
+use Illuminate\View\AnonymousComponent as ViewAnonymousComponent;
 use Surgiie\Blade\AnonymousComponent;
 use Surgiie\Blade\ComponentTagCompiler;
 use Surgiie\Blade\FileCompiler;
@@ -21,38 +22,26 @@ trait CompilesComponents
      */
     protected function compileEndComponent()
     {
-        $options = array_pop($this->modifiersStack);
-        // $options = array_pop($this->componentModifiersStack);
+        // $modifiers = array_pop($this->modifiersStack);
+        $modifiers = array_pop($this->componentModifiersStack);
 
-        $options = var_export($options, true);
+        $modifiers = var_export($modifiers, true);
 
-        return "<?php echo \$__env->renderComponent($options); ?> ";
+        return "<?php echo \$__env->renderComponent(modifiers: $modifiers); ?> ";
     }
 
-    /*
     protected function compileComponent($expression)
     {
-        [$component, $alias, $data] = str_contains($expression, ',')
-        ? array_map('trim', explode(',', trim($expression, '()'), 3)) + ['', '', '']
-        : [trim($expression, '()'), '', ''];
-        $hash = static::newComponentHash($component);
-
-        if (Str::contains($component, ['::class', '\\'])) {
-            $compiled = static::compileComponentClassOpening($component, $alias, $data, $hash, $this);
-        } else {
-            $compiled = "<?php \$__env->startComponent{$expression}; ?>";
-        }
-
-        // pass the options from stack down since render is done in `compileEndComponent`
         $this->componentModifiersStack[] = array_pop($this->modifiersStack);
 
-        return $compiled;
-    }*/
+        return str_replace(ViewAnonymousComponent::class, AnonymousComponent::class, parent::compileComponent($expression));
+    }
 
 
     public static function compileComponentClassOpening(string $component, string $alias, string $data, string $hash, FileCompiler $compiler)
     {
-        [$path, $class] = ComponentTagCompiler::getComponentFilePath($cleanAlias = str_replace("'", '', $alias), $compiler->getPath());
+
+        /*[$path, $class] = ComponentTagCompiler::getComponentFilePath($cleanAlias = str_replace("'", '', $alias), $compiler->getPath());
 
         if (! $path && $alias) {
             $path = static::parseComponentPath($cleanAlias);
@@ -70,7 +59,6 @@ trait CompilesComponents
         }
 
         array_splice($parts, 1, 0, "<?php \$__env->requireComponentClass('$class', '$path') ?>");
-
-        return implode(PHP_EOL, $parts);
+        return implode(PHP_EOL, $parts);*/
     }
 }

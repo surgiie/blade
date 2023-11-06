@@ -9,7 +9,9 @@ uses(TestCase::class)->in(__DIR__);
 
 function testBlade()
 {
-    return (new Blade(cachePath: test_mock_path(".cache")));
+    Blade::setCachePath(test_mock_path(".cache"));
+
+    return new Blade;
 }
 
 function test_mock_path(string $path = '')
@@ -19,15 +21,7 @@ function test_mock_path(string $path = '')
 
 function tear_down()
 {
-    (new \Illuminate\Filesystem\Filesystem)->deleteDirectory(test_mock_path());
-    testBlade()->deleteCacheDirectory();
-
-    // @mkdir($mockDir = test_mock_path());
-
-    // $fs = new Filesystem;
-    // $fs->deleteDirectory($mockDir);
-
-    // $fs->deleteDirectory(test_mock_path(".cache"));
+    (new Filesystem)->deleteDirectory(test_mock_path());
     // // make sure we are on a fresh cache/resolver, to avoid collisions between tests
     // // if we happen to use the same component/file names but different content.
     // Component::flushCache();

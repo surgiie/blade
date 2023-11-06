@@ -1,10 +1,5 @@
-name: {{ $name }}
-    favorite_food: {{ $favoriteFood }}
-        @component('/home/surgiie/projects/blade/component.yaml', ['data'=>'foobar'])
-        @endcomponent
-favorite_numbers:
-@php($count = 0)
-@while ($count < 3)
-    - '{{ $count }}'
-    @php($count ++)
-@endwhile
+{
+    "name": "{{ $name }}",
+    "favorite_food": "{{ $favoriteFood }}",
+    @include('include.json')
+}

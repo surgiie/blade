@@ -18,18 +18,16 @@ class Blade
 {
     public const ENGINE_NAME = 'blade';
 
-    protected string $cachePath;
     protected ?FileFactory $factory = null;
+    protected static ?string $cachePath = null;
     protected ?FileFinder $fileFinder = null;
     protected ?FileCompiler $compiler = null;
     protected ?FileCompilerEngine $engine = null;
     protected ?EngineResolver $engineResolver = null;
 
-    public function __construct(?ContainerContract $container = null, ?string $cachePath = null)
+    public function __construct(?ContainerContract $container = null)
     {
         $this->container = (Container::getInstance() ?:$container) ?: new Container();
-
-        $this->cachePath = $cachePath ?: __DIR__ . '/../.cache';
 
         $this->container->singleton(ViewFactoryContract::class, fn () => $this->factory());
 
@@ -37,6 +35,15 @@ class Blade
         $this->container->singleton(ViewFinderInterface::class, fn () => $this->finder());
 
         $this->engineResolver()->register(self::ENGINE_NAME, fn () => $this->engine());
+
+        if(is_null(static::$cachePath)){
+            static::setCachePath(__DIR__.'/../.cache');
+        }
+    }
+
+    public static function setCachePath(string $path)
+    {
+        static::$cachePath = $path;
     }
 
     public function __call(string $name, array $arguments)
@@ -53,13 +60,6 @@ class Blade
     public function finder(): FileFinder
     {
         return $this->fileFinder ??= new FileFinder(new Filesystem, []);
-    }
-
-    public function setCachePath(string $path)
-    {
-        $this->cachePath = $path;
-
-        return $this;
     }
 
     protected function engineResolver(): EngineResolver
@@ -80,9 +80,9 @@ class Blade
         );
     }
 
-    public function getCachePath(): ?string
+    public static function getCachePath(): ?string
     {
-        return $this->cachePath;
+        return static::$cachePath;
     }
 
     protected function engine(): FileCompilerEngine
@@ -92,7 +92,7 @@ class Blade
 
     protected function compiler(): FileCompiler
     {
-        return  $this->compiler ??= new FileCompiler(new Filesystem, $this->getCachePath());
+        return  $this->compiler ??= new FileCompiler(new Filesystem, static::getCachePath());
     }
 
     public function render(string $path, array $vars = []): string
@@ -105,7 +105,7 @@ class Blade
 
         $finder = $this->finder();
         // // replace the namespace for components to the compiled path so the file finder can find them.
-        // $finder->replaceNamespace('__components', $this->getCompiledPath());
+        $finder->replaceNamespace('__components', static::getCachePath());
 
         // ensure we're in a clean state before rendering so we can render files on the fly without conflicts.
         $finder->flush();
@@ -114,6 +114,7 @@ class Blade
 
         // dont use realpath on phar file paths as it will always be false, since phar files are virtual.
         $directory = str_starts_with($path, 'phar://') ? dirname($path) : dirname($info->getRealPath());
+
 
         // tell the finder about the directory this file is in and it's file extension.
         $finder->setPaths([$directory]);
@@ -157,8 +158,8 @@ class Blade
         return $contents;
     }
 
-    public function deleteCacheDirectory(): bool
+    public static function deleteCacheDirectory(): bool
     {
-        return (new Filesystem)->deleteDirectory($this->getCachePath());
+        return (new Filesystem)->deleteDirectory(static::getCachePath());
     }
 }
