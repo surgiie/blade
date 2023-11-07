@@ -53,12 +53,12 @@ $contents = $blade->render("/path/to/file", ['var'=>'example']);
 ### Delete Cached Files
 You can delete cached files using the `deleteCacheDirectory` method:
 
-```php
 
+```php
 Blade::deleteCacheDirectory();
 ```
 
-**Tip** - Consider doing this before rendering to force render files.
+**Tip** - Do this before calling `render` method to force render a file.
 
 
 ### Custom Directives
@@ -72,67 +72,45 @@ $blade = new Blade();
 $blade->directive('echo', fn ($expression) => "<?php echo {$expression}; ?>");
 
 $contents = $blade->render("/example.txt", ['name' => 'Surgiie', 'dogs'=>['luffy', 'zoro', 'sanji']]);
-
 ```
-
-<!-- ### Using Components
+### Using Components
 
 You may also use Blade `x-*` components in your file:
 
-
 #### Anonymous Components
+
+Using dot notation component tag names, you can specify a component file to render:
+
 ```html
-<x-components.example data="Something" />
+<x-component.yaml data="Something" />
 ```
 
-Where `components.example` is a relative file  `components/example` to the file being compiled, this file can then contain any raw content and will be treated as a anonymous component.
+Where `component.yaml` resolves to the file `components/yaml` or `component.yaml` file that is relative to the file being rendered, this file can then contain any raw content and will be treated as a anonymous component.
+
+**Absolute Paths**:
+If you want to render a component file using absolute path, use a double dash instead of single dash after the `x` in tag name, i.e `x--` instead of `x-`:
+
+```html
+<x--components.foo.yaml data="Something" />
+```
+The above component will resolve to `/components/foo/yaml`, if that doesnt exist, resolves to `/components/foo.yaml` or errors out if either dont exist.
 
 #### Class Components
 
-Class based components have no special difference in syntax:
+Since this blade engine renders files on the fly, it does not know how to resolve class based components. In order to use class components you must specify component tag
+
+names and component class to use using the `components` method:
+
+```php
+Blade::components([
+    'components.example' => App\Components\Alert::class,
+])
+
+```
+Then you can use the component in your file:
 ```html
 <x-components.example data="Something" />
 ```
 
-The only difference here is that `components.example` is a relative `.php` file  to the file being compiled, in this case `components/example.php`.
+The engine, will then use the class to render the component.
 
-
-**Note** that since this package is customized to allow compiling any file path on the fly, the `.php` class component, must return the `::class` component, and extend the `\Surgiie\Blade\Component` class:
-
-```php
-
-<?php
-
-namespace Components;
-
-use Surgiie\Blade\Component as BladeComponent;
-
-class Alert extends BladeComponent
-{
-    public $message;
-
-    public function __construct($message)
-    {
-        $this->message = $message;
-    }
-
-    public function render()
-    {
-        return blade()->compile('/your-component-file', [
-            'message' => $this->message,
-        ]);
-    }
-}
-
-return Alert::class; // required so the engine can require the class on the fly and remember it.
-```
-
-#### Using absolute paths for components:
-
-Components are resolved using a relative path from the filed being compiled, if you want to use an absolute path, use a double `-` in the component name:
-
-```html
-<x--components.example data="Something" />
-```
-
-This will resolve the path to look for the file to `/components/example` instead of `/<file-being-compiled-path>/components/example`. -->

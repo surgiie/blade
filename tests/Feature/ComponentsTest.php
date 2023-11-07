@@ -1,5 +1,8 @@
 <?php
 
+use Surgiie\Blade\Blade;
+use Surgiie\Blade\Component;
+
 afterAll(function () {
     // tear_down();
 });
@@ -139,12 +142,12 @@ it('can render component @slot', function () {
 
 
 it('can render blade x anonymous components', function () {
-    write_mock_file('component.yaml', <<<'EOL'
+    write_mock_file('component', <<<'EOL'
     name: {{ $name }}
     EOL);
 
     $path = write_mock_file('test.yaml', <<<'EOL'
-    <x-component.yaml :name='$name' />
+    <x-component :name='$name' />
     favorite_food: {{ $favoriteFood }}
     family_info:
     @switch($oldest)
@@ -179,6 +182,7 @@ it('can render nested blade x anonymous components', function () {
 
     $path = write_mock_file('example.yaml', <<<'EOL'
         <x-component.yaml :name='$name' />
+        <x-component.yaml :name='$nameTwo' />
     favorite_food: {{ $favoriteFood }}
     family_info:
     @switch($oldest)
@@ -193,14 +197,122 @@ it('can render nested blade x anonymous components', function () {
 
     $contents = testBlade()->render($path, [
         'name' => 'Ricky',
+        'nameTwo' => 'Bob',
         'favoriteFood' => 'Pasta',
         'oldest' => true,
     ]);
 
     expect($contents)->toBe(<<<'EOL'
         name: Ricky
+        name: Bob
     favorite_food: Pasta
     family_info:
         oldest_child: true
+    EOL);
+});
+
+it('can render blade x anonymous components via absolute path', function () {
+    write_mock_file('component.yaml', <<<'EOL'
+    name: {{ $name }}
+    EOL);
+
+    $component = ltrim(str_replace('/', '.', test_mock_path('component')).'.yaml', '.');
+    $path = write_mock_file('main.yaml', <<<"EOL"
+    <x--$component :name='\$name' />
+    family_info:
+    @switch(\$oldest)
+    @case(1)
+        oldest_child: true
+        @break
+    @case(2)
+        oldest_child: false
+        @break
+    @endswitch
+    EOL);
+
+    $contents = testBlade()->render($path, [
+        'name' => 'Bob',
+        'favoriteFood' => 'Pizza',
+        'oldest' => true,
+    ]);
+
+    expect($contents)->toBe(<<<'EOL'
+    name: Bob
+    family_info:
+        oldest_child: true
+    EOL);
+});
+
+it('can render nested blade x anonymous components via absolute path', function () {
+    write_mock_file('component.yaml', <<<'EOL'
+    name: {{ $name }}
+    EOL);
+
+    $component = ltrim(str_replace('/', '.', test_mock_path('component')).'.yaml', '.');
+    $path = write_mock_file('main.yaml', <<<"EOL"
+        <x--$component :name='\$name' />
+    family_info:
+    @switch(\$oldest)
+    @case(1)
+        oldest_child: true
+        @break
+    @case(2)
+        oldest_child: false
+        @break
+    @endswitch
+    EOL);
+
+    $contents = testBlade()->render($path, [
+        'name' => 'Bob',
+        'favoriteFood' => 'Pizza',
+        'oldest' => true,
+    ]);
+
+    expect($contents)->toBe(<<<'EOL'
+        name: Bob
+    family_info:
+        oldest_child: true
+    EOL);
+});
+
+
+it('can render blade x class components', function () {
+
+    Blade::components([
+        'test' => TestComponent::class,
+    ]);
+    class TestComponent extends Component
+    {
+        public $type;
+        public $message;
+        public function __construct($type, $message)
+        {
+            $this->type = $type;
+            $this->message = $message;
+        }
+        public function render()
+        {
+            return blade()->render(__DIR__.'/alert.txt', [
+                'type' => $this->type,
+                'message' => $this->message,
+            ]);
+        }
+    }
+
+    write_mock_file('alert.txt', <<<'EOL'
+    {{ $type }}: {{ $message }}
+    EOL);
+
+    write_mock_file('file.yaml', <<<'EOL'
+    <x-test :type='$type' :message='$message' />
+    EOL);
+
+    $contents = testBlade()->render(test_mock_path('file.yaml'), [
+        'message' => 'Something went wrong!',
+        'type' => 'error',
+    ]);
+
+    expect($contents)->toBe(<<<'EOL'
+    error: Something went wrong!
     EOL);
 });

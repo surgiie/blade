@@ -19,9 +19,10 @@ class Blade
     public const ENGINE_NAME = 'blade';
 
     protected ?FileFactory $factory = null;
-    protected static ?string $cachePath = null;
-    protected ?FileFinder $fileFinder = null;
     protected ?FileCompiler $compiler = null;
+    protected ?FileFinder $fileFinder = null;
+    protected static ?string $cachePath = null;
+    protected static array $components = [];
     protected ?FileCompilerEngine $engine = null;
     protected ?EngineResolver $engineResolver = null;
 
@@ -39,6 +40,21 @@ class Blade
         if(is_null(static::$cachePath)){
             static::setCachePath(__DIR__.'/../.cache');
         }
+    }
+
+    public static function components(array $components): void
+    {
+        static::$components = array_merge(static::$components, $components);
+    }
+
+    public static function getComponents(): array
+    {
+        return static::$components;
+    }
+
+    public static function forgetComponents(): void
+    {
+        static::$components = [];
     }
 
     public static function setCachePath(string $path)

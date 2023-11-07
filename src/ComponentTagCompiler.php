@@ -2,12 +2,13 @@
 
 namespace Surgiie\Blade;
 
-use Illuminate\Contracts\Container\BindingResolutionException;
+use Illuminate\Support\Str;
+use Illuminate\View\DynamicComponent;
 use Illuminate\View\AnonymousComponent;
 use Surgiie\Blade\Concerns\ParsesComponentFilePath;
+use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\View\AnonymousComponent as BladeAnonymousComponent;
 use Illuminate\View\Compilers\ComponentTagCompiler as BladeComponentTagCompiler;
-use Illuminate\View\DynamicComponent;
 
 class ComponentTagCompiler extends BladeComponentTagCompiler
 {
@@ -26,13 +27,21 @@ class ComponentTagCompiler extends BladeComponentTagCompiler
      */
     protected function componentString(string $component, array $attributes): string
     {
-        if(! str_starts_with($this->path, "-")){
+        $bladeComponents = Blade::getComponents();
+        dd($component, $bladeComponents);
+
+        if(! str_starts_with($component, "-")){
             $component = dirname($this->path).DIRECTORY_SEPARATOR.$component;
         }else{
-            // TODO
+            $component = Str::start(ltrim($component, "-"), DIRECTORY_SEPARATOR);
         }
 
+        $component = str_replace(".", DIRECTORY_SEPARATOR, $component);
+
+        $component = is_file($component) ? $component : Str::replaceLast(DIRECTORY_SEPARATOR, ".", $component);
+
         $string = parent::componentString($component, $attributes);
+
 
         return str_replace(BladeAnonymousComponent::class, AnonymousComponent::class, $string);
     }
@@ -45,6 +54,7 @@ class ComponentTagCompiler extends BladeComponentTagCompiler
         try{
             return parent::componentClass($component);
         }catch(BindingResolutionException){
+            dd($component);
             return $component;
         }
     }
