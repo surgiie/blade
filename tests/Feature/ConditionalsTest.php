@@ -110,8 +110,6 @@ it('can render nested @else', function () {
     EOL);
 });
 
-
-
 it('can render @switch', function () {
     $path = write_mock_file('test.yaml', <<<'EOL'
     name: {{ $name }}
@@ -169,4 +167,3 @@ it('can render nested @switch', function () {
                 oldest_child: true
         EOL);
 });
-

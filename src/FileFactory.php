@@ -2,9 +2,7 @@
 
 namespace Surgiie\Blade;
 
-use Surgiie\Blade\Blade;
 use Illuminate\View\Factory;
-use InvalidArgumentException;
 use Surgiie\Blade\Concerns\Modifiers\ModifiesSpacing;
 
 class FileFactory extends Factory
@@ -41,8 +39,6 @@ class FileFactory extends Factory
     public function make($view, $data = [], $mergeData = [])
     {
         $file = parent::make($view, $data, $mergeData);
-
-        // $file->setOptions($modifiers);
 
         return $file;
     }

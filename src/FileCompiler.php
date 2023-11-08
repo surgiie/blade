@@ -2,21 +2,20 @@
 
 namespace Surgiie\Blade;
 
-use Surgiie\Blade\ComponentTagCompiler;
 use Illuminate\View\Compilers\BladeCompiler;
-use Surgiie\Blade\Concerns\Compilers\CompilesIncludes;
 use Surgiie\Blade\Concerns\Compilers\CompilesComponents;
+use Surgiie\Blade\Concerns\Compilers\CompilesIncludes;
 
 class FileCompiler extends BladeCompiler
 {
-    use CompilesIncludes, CompilesComponents;
+    use CompilesComponents, CompilesIncludes;
 
     protected array $modifiersStack = [];
 
     protected function compileStatements($value)
     {
         return preg_replace_callback(
-          '/\h*(?:\#\#BEGIN-\COMPONENT\-CLASS\#\#)?\B@(@?\w+(?:::\w+)?)([ \t]*)(\( ( (?>[^()]+) | (?3) )* \))?/x', function ($match) {
+            '/\h*(?:\#\#BEGIN-\COMPONENT\-CLASS\#\#)?\B@(@?\w+(?:::\w+)?)([ \t]*)(\( ( (?>[^()]+) | (?3) )* \))?/x', function ($match) {
                 // capture the spacing next to the directive so we can modify the content later so it's indented properly
                 $spacingTotal = strlen($match[0]) - strlen(ltrim($match[0]));
 

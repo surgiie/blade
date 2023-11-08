@@ -29,7 +29,6 @@ it('can render @foreach', function () {
     EOL);
 });
 
-
 it('can render nested @foreach', function () {
 
     $path = write_mock_file('test.yaml', <<<'EOL'
@@ -55,7 +54,6 @@ it('can render nested @foreach', function () {
             - Charlie
     EOL);
 });
-
 
 it('can render @forelse', function () {
     $path = write_mock_file('test.yaml', <<<'EOL'
@@ -110,7 +108,6 @@ it('can render nested @forelse', function () {
             - Charlie
     EOL);
 });
-
 
 it('can render @for', function () {
     $path = write_mock_file('test.yaml', <<<'EOL'

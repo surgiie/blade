@@ -4,7 +4,6 @@ namespace Surgiie\Blade;
 
 use Illuminate\View\View;
 use Surgiie\Blade\Concerns\Modifiers\ModifiesSpacing;
-use Surgiie\Blade\Concerns\ModifiesRenderedContent;
 
 class File extends View
 {

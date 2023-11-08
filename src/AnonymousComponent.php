@@ -2,12 +2,11 @@
 
 namespace Surgiie\Blade;
 
-use Surgiie\Blade\Blade;
-use Surgiie\Blade\Component;
 
 class AnonymousComponent extends Component
 {
     protected string $view;
+
     protected array $data = [];
 
     public function __construct(string $view, array $data)
@@ -18,7 +17,7 @@ class AnonymousComponent extends Component
 
     public static function resolve($data)
     {
-       return parent::resolve($data);
+        return parent::resolve($data);
     }
 
     public function render(): string

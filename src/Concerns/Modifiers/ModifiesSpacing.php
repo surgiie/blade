@@ -12,7 +12,7 @@ trait ModifiesSpacing
 
         foreach (explode(PHP_EOL, $content) as $line) {
 
-            if($spacing){
+            if ($spacing) {
                 $line = $spacing.$line;
             }
             $result[] = rtrim($line);

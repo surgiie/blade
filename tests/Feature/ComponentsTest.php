@@ -140,7 +140,6 @@ it('can render component @slot', function () {
     EOL);
 });
 
-
 it('can render blade x anonymous components', function () {
     write_mock_file('component', <<<'EOL'
     name: {{ $name }}
@@ -275,44 +274,75 @@ it('can render nested blade x anonymous components via absolute path', function 
     EOL);
 });
 
-
 it('can render blade x class components', function () {
-
-    Blade::components([
-        'test' => TestComponent::class,
-    ]);
     class TestComponent extends Component
     {
         public $type;
+
         public $message;
+
         public function __construct($type, $message)
         {
             $this->type = $type;
             $this->message = $message;
         }
+
         public function render()
         {
-            return blade()->render(__DIR__.'/alert.txt', [
+            return blade()->render(test_mock_path('/alert.txt'), [
+                'type' => $this->type,
+                'message' => $this->message,
+            ]);
+        }
+    }
+    class TestTwoComponent extends Component
+    {
+        public $type;
+
+        public $message;
+
+        public function __construct($type, $message)
+        {
+            $this->type = $type;
+            $this->message = $message;
+        }
+
+        public function render()
+        {
+            return blade()->render(test_mock_path('/alert2.txt'), [
                 'type' => $this->type,
                 'message' => $this->message,
             ]);
         }
     }
 
+    Blade::components([
+        'test' => TestComponent::class,
+        'test-two' => TestTwoComponent::class,
+    ]);
+
     write_mock_file('alert.txt', <<<'EOL'
     {{ $type }}: {{ $message }}
     EOL);
 
+    write_mock_file('alert2.txt', <<<'EOL'
+    {{ $type }}: {!! $message !!}
+    EOL);
+
     write_mock_file('file.yaml', <<<'EOL'
     <x-test :type='$type' :message='$message' />
+    <x-test-two :type='$typeTwo' :message='$messageTwo' />
     EOL);
 
     $contents = testBlade()->render(test_mock_path('file.yaml'), [
         'message' => 'Something went wrong!',
         'type' => 'error',
+        'messageTwo'=> "I'll let it slide this time.",
+        'typeTwo' => 'warning',
     ]);
 
     expect($contents)->toBe(<<<'EOL'
     error: Something went wrong!
+    warning: I'll let it slide this time.
     EOL);
 });
