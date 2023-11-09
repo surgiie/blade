@@ -4,7 +4,7 @@ use Surgiie\Blade\Blade;
 use Surgiie\Blade\Component;
 
 afterAll(function () {
-    // tear_down();
+    tear_down();
 });
 
 it('can render @component', function () {
