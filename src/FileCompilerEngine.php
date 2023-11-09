@@ -32,6 +32,7 @@ class FileCompilerEngine extends CompilerEngine
     protected function handleViewException(Throwable $e, $obLevel)
     {
         $class = get_class($e);
+
         PhpEngine::handleViewException(new $class($this->getMessage($e)), $obLevel);
     }
 

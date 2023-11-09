@@ -3,11 +3,10 @@
 namespace Surgiie\Blade\Concerns\Compilers;
 
 use Illuminate\Support\Str;
-use Surgiie\Blade\AnonymousComponent;
-use Illuminate\View\AnonymousComponent as ViewAnonymousComponent;
 
 trait CompilesComponents
 {
+    protected ?string $lastComponent = null;
     protected array $componentModifiersStack = [];
 
     protected function compileEndComponent()

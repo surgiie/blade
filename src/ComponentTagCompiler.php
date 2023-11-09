@@ -3,7 +3,8 @@
 namespace Surgiie\Blade;
 
 use Illuminate\Support\Str;
-use Illuminate\View\AnonymousComponent;
+use Surgiie\Blade\AnonymousComponent;
+use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\View\AnonymousComponent as BladeAnonymousComponent;
 use Illuminate\View\Compilers\ComponentTagCompiler as BladeComponentTagCompiler;
 

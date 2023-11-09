@@ -2,6 +2,8 @@
 
 namespace Surgiie\Blade;
 
+use Surgiie\Blade\Exceptions\UnresolvableException;
+
 
 class AnonymousComponent extends Component
 {
@@ -17,6 +19,10 @@ class AnonymousComponent extends Component
 
     public static function resolve($data)
     {
+        if(isset($data['view']) && !is_file($data['view']) && !class_exists($data['view'])){
+            throw new UnresolvableException("Could not resolve component class or file for: {$data['view']}");
+        }
+
         return parent::resolve($data);
     }
 
