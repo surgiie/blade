@@ -1,1 +1,0 @@
-The comp: <?php echo e($name); ?><?php /**PATH /home/surgiie/projects/blade/test ENDPATH**/ ?>
