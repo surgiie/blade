@@ -2,7 +2,6 @@
 
 use Illuminate\Filesystem\Filesystem;
 use Surgiie\Blade\Blade;
-use Surgiie\Blade\Component;
 use Surgiie\Blade\Tests\TestCase;
 
 uses(TestCase::class)->in(__DIR__);

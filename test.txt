@@ -1,5 +1,0 @@
-{
-    "name": "{{ $name }}",
-    "favorite_food": "{{ $favoriteFood }}",
-    @include('include.json')
-}

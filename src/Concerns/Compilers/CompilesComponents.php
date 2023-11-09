@@ -7,6 +7,7 @@ use Illuminate\Support\Str;
 trait CompilesComponents
 {
     protected ?string $lastComponent = null;
+
     protected array $componentModifiersStack = [];
 
     protected function compileEndComponent()

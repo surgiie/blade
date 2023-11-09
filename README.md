@@ -2,27 +2,27 @@
 
 ![tests](https://github.com/surgiie/blade/actions/workflows/tests.yml/badge.svg)
 
-An extended standalone version of the Laravel Blade engine so that it can be used on any textual file.
+An extended standalone version of the Laravel Blade engine so that it can be used on any textual file on the fly.
 
 ## Why?
 
-There are several standalone blade engines out there, but there all meant for html files where spacing is not important.
+There are several standalone blade packages out there, but there all meant for html template files where spacing is not important.
 
-I wanted the ability to use the blade engine for rendering template files such as yaml and wanted it to work basically on any textual file on the fly.
+I wanted the ability to use the blade engine for rendering template files such as yaml during my deployment ci pipelines, and wanted it to work basically on any textual file on the fly.
 
 The blade engine trims output buffer and some compiled directives dont preserve nesting of the rendered content, for example, if you have a file like this:
 
 ```yaml
 # example.yaml
 name: {{ $name }}
-
+test:
     @include("partial.yaml")
 ```
-Each line of the contents of the `@include` should also be indented by the number of spaces left of the `@include` directive, but it's not.
+Each line of the contents of the `@include` should also be indented by the number of spaces left of the `@include` directive, but it's not and the rendered content
 
-This is a problem, because the rendered result will not match the original file structure in terms of nesting/spacing, which is problematic when rendering files like `.yaml`
+will not be indented. This is a problematic when rendering files like yaml where spacing and indentation are semantically important as the rendered result will not match the original file structure
 
-where nesting is semantically important.
+in terms of nesting/spacing.
 
 ## Installation
 
@@ -77,6 +77,8 @@ $contents = $blade->render("/example.txt", ['name' => 'Surgiie', 'dogs'=>['luffy
 
 You may also use Blade `x-*` components in your file:
 
+[Learn More](https://laravel.com/docs/10.x/blade#components)
+
 #### Anonymous Components
 
 Using dot notation component tag names, you can specify a component file to render:
@@ -108,8 +110,9 @@ Blade::components([
 
 ```
 Then you can use the component in your file:
+
 ```html
-<x-components.example data="Something" />
+<x-components.example data="example" />
 ```
 
 The engine, will then use the class to render the component.

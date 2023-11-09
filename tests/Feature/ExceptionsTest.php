@@ -13,7 +13,6 @@ it('throws exception when file doesnt exist', function () {
     })->toThrow(FileNotFoundException::class);
 });
 
-
 it('throws exception when class for component doesnt exist.', function () {
     expect(function () {
         write_mock_file('alert.txt', <<<'EOL'

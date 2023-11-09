@@ -1,6 +1,0 @@
-{
-    "name": "Surgiie",
-    "favorite_food": "Pizza",
-    "phone": "1234567890",
-    "street_info": "123 Lane."
-}

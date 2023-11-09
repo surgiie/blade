@@ -337,7 +337,7 @@ it('can render blade x class components', function () {
     $contents = testBlade()->render(test_mock_path('file.yaml'), [
         'message' => 'Something went wrong!',
         'type' => 'error',
-        'messageTwo'=> "I'll let it slide this time.",
+        'messageTwo' => "I'll let it slide this time.",
         'typeTwo' => 'warning',
     ]);
 
