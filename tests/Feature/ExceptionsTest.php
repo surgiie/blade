@@ -24,7 +24,7 @@ it('throws exception when class for component doesnt exist.', function () {
         <x-test :type='$type' :message='$message' />
         EOL);
 
-        $contents = testBlade()->render(test_mock_path('file.yaml'), [
+        testBlade()->render(test_mock_path('file.yaml'), [
             'message' => 'Something went wrong!',
             'type' => 'error',
         ]);
