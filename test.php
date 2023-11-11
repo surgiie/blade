@@ -9,4 +9,4 @@ $blade = new Blade();
 
 $contents = $blade->render('main', ['title' => 'Hello World']);
 
-dd("CONTENTS", $contents);
+dd('CONTENTS', $contents);

@@ -11,22 +11,21 @@ abstract class Component extends BladeComponent
     {
         $class = null;
 
-        if (! isset($data['view'])){
+        if (! isset($data['view'])) {
             return parent::resolve($data);
         }
 
-        if(! is_file($data['view']) && ! class_exists($data['view'])) {
+        if (! is_file($data['view']) && ! class_exists($data['view'])) {
             throw new FileException("Could not resolve component class or file for: {$data['view']}");
         }
 
-        if(is_file($data['view']) && str_ends_with($data['view'], '.php')){
+        if (is_file($data['view']) && str_ends_with($data['view'], '.php')) {
             $class = require_once $data['view'];
 
             dd($class);
         }
 
-
-        if(is_int($class) || (!is_null($class) && !class_exists($class))){
+        if (is_int($class) || (! is_null($class) && ! class_exists($class))) {
             throw new FileException("Could not resolve component class or file for: {$component}, must return a class.");
         }
 
