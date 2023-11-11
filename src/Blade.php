@@ -9,8 +9,7 @@ use Illuminate\Events\Dispatcher;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\View\Engines\EngineResolver;
 use SplFileInfo;
-use Surgiie\Blade\Exceptions\FileNotFoundException;
-use Surgiie\Blade\Exceptions\UndefinedVariableException;
+use Surgiie\Blade\Exceptions\FileException;
 
 class Blade
 {
@@ -118,7 +117,7 @@ class Blade
     public function render(string $path, array $vars = []): string
     {
         if (! is_file($path)) {
-            throw new FileNotFoundException("The $path file does not exist.");
+            throw new FileException("The $path file does not exist.");
         }
 
         $info = new SplFileInfo($path);
@@ -147,9 +146,8 @@ class Blade
             preg_match('/Undefined variable \$(.*)/', $message, $match);
 
             if ($match) {
-                throw new UndefinedVariableException(
+                throw new FileException(
                     "Undefined variable \$$match[1] on line $line.",
-                    $match[1]
                 );
             }
         });

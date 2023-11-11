@@ -1,7 +1,6 @@
 <?php
 
-use Surgiie\Blade\Exceptions\FileNotFoundException;
-use Surgiie\Blade\Exceptions\UnresolvableException;
+use Surgiie\Blade\Exceptions\FileException;
 
 afterAll(function () {
     tear_down();
@@ -10,23 +9,20 @@ afterAll(function () {
 it('throws exception when file doesnt exist', function () {
     expect(function () {
         testBlade()->render('/something', []);
-    })->toThrow(FileNotFoundException::class);
+    })->toThrow(FileException::class);
 });
 
 it('throws exception when class for component doesnt exist.', function () {
     expect(function () {
-        write_mock_file('alert.txt', <<<'EOL'
-        {{ $type }}: {{ $message }}
+
+        $path = write_mock_file('file.yaml', <<<'EOL'
+        <x-dont-exist :type='$type' :message='$message' />
         EOL);
 
-        write_mock_file('file.yaml', <<<'EOL'
-        <x-test :type='$type' :message='$message' />
-        EOL);
-
-        testBlade()->render(test_mock_path('file.yaml'), [
+        testBlade()->render($path, [
             'message' => 'Something went wrong!',
             'type' => 'error',
         ]);
 
-    })->toThrow(UnresolvableException::class);
+    })->toThrow(FileException::class);
 });

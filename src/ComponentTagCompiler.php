@@ -18,23 +18,24 @@ class ComponentTagCompiler extends BladeComponentTagCompiler
 
     protected function componentString(string $component, array $attributes): string
     {
+        $path = $component;
         $bladeComponents = Blade::getComponents();
 
-        if (array_key_exists($component, $bladeComponents)) {
-            return str_replace(BladeAnonymousComponent::class, $bladeComponents[$component], parent::componentString($component, $attributes));
+        if (array_key_exists($path, $bladeComponents)) {
+            return str_replace(BladeAnonymousComponent::class, $bladeComponents[$path], parent::componentString($path, $attributes));
         }
 
-        if (! str_starts_with($component, '-')) {
-            $component = dirname($this->path).DIRECTORY_SEPARATOR.$component;
+        if (! str_starts_with($path, '-')) {
+            $path = dirname($this->path).DIRECTORY_SEPARATOR.$path;
         } else {
-            $component = Str::start(ltrim($component, '-'), DIRECTORY_SEPARATOR);
+            $path = Str::start(ltrim($path, '-'), DIRECTORY_SEPARATOR);
         }
 
-        $component = str_replace('.', DIRECTORY_SEPARATOR, $component);
+        $path = str_replace('.', DIRECTORY_SEPARATOR, $path);
 
-        $component = is_file($component) ? $component : Str::replaceLast(DIRECTORY_SEPARATOR, '.', $component);
+        $path = is_file($path) ? $path : Str::replaceLast(DIRECTORY_SEPARATOR, '.', $path);
 
-        return str_replace(BladeAnonymousComponent::class, AnonymousComponent::class, parent::componentString($component, $attributes));
+        return str_replace(BladeAnonymousComponent::class, AnonymousComponent::class, parent::componentString($path, $attributes));
     }
 
     public function componentClass(string $component)

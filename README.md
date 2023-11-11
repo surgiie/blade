@@ -10,7 +10,7 @@ There are several standalone blade packages out there, but there all meant for h
 
 I wanted the ability to use the blade engine for rendering template files such as yaml during my deployment ci pipelines, and wanted it to work basically on any textual file on the fly.
 
-The blade engine trims output buffer and some compiled directives dont preserve nesting of the rendered content, for example, if you have a file like this:
+The blade engine trims the output and some compiled directives dont preserve nesting of the rendered content, for example, if you have a file like this:
 
 ```yaml
 # example.yaml
@@ -18,11 +18,9 @@ name: {{ $name }}
 test:
     @include("partial.yaml")
 ```
-Each line of the contents of the `@include` should also be indented by the number of spaces left of the `@include` directive, but it's not and the rendered content
+Each line of the contents of the `@include` should also be indented by the number of spaces left of the `@include` directive, but it's not and the rendered result will not match the original file structure
 
-will not be indented. This is a problematic when rendering files like yaml where spacing and indentation are semantically important as the rendered result will not match the original file structure
-
-in terms of nesting/spacing.
+in terms of nesting/spacing. This is a problematic when rendering files like yaml where spacing and indentation are semantically important.
 
 ## Installation
 
@@ -37,6 +35,7 @@ composer require surgiie/blade
 
 use Surgiie\Blade\Blade;
 use Illuminate\Container\Container;
+use Surgiie\Blade\Component;
 
 // set a cache directory for compiled cache files, defaults to vendor/surgiie/blade/.cache
 Blade::setCachePath("/tmp/.blade");
@@ -99,14 +98,13 @@ The above component will resolve to `/components/foo/yaml`, if that doesnt exist
 
 #### Class Components
 
-Since this blade engine renders files on the fly, it does not know how to resolve class based components. In order to use class components you must specify component tag
+To specify what component class to use for a component name, you can register the component using the `components` method:
 
-names and component class to use using the `components` method:
 
 ```php
 Blade::components([
     'components.example' => App\Components\Alert::class,
-])
+]);
 
 ```
 Then you can use the component in your file:
@@ -116,4 +114,23 @@ Then you can use the component in your file:
 ```
 
 The engine, will then use the class to render the component.
+
+
+If you are using this package where a class may not be available at runtime or want to `require` the class on the fly you can use a php file that returns the class constant:
+
+```php
+use Surgiie\Blade\Component;
+
+class Alert extends Component;
+{
+   /** ....*/
+}
+
+return Alert::class;
+```
+Then if the component name ends with .php, the engine will attempt to `require` it on the fly:
+
+```html
+<x-alert.php />
+```
 

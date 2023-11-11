@@ -4,6 +4,7 @@ namespace Surgiie\Blade;
 
 use Illuminate\View\Engines\CompilerEngine;
 use Illuminate\View\Engines\PhpEngine;
+use Surgiie\Blade\Exceptions\FileException;
 use Throwable;
 
 class FileCompilerEngine extends CompilerEngine
@@ -31,9 +32,9 @@ class FileCompilerEngine extends CompilerEngine
 
     protected function handleViewException(Throwable $e, $obLevel)
     {
-        $class = get_class($e);
+        $e = new FileException($this->getMessage($e), 0, 1, $e->getFile(), $e->getLine(), $e);
 
-        PhpEngine::handleViewException(new $class($this->getMessage($e)), $obLevel);
+        PhpEngine::handleViewException($e, $obLevel);
     }
 
     protected function getMessage(Throwable $e): string
