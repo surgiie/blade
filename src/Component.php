@@ -2,8 +2,9 @@
 
 namespace Surgiie\Blade;
 
-use Illuminate\View\Component as BladeComponent;
+use Illuminate\Container\Container;
 use Surgiie\Blade\Exceptions\FileException;
+use Illuminate\View\Component as BladeComponent;
 
 abstract class Component extends BladeComponent
 {
@@ -15,22 +16,19 @@ abstract class Component extends BladeComponent
             return parent::resolve($data);
         }
 
-        if(! is_file($data['view']) && ! class_exists($data['view'])) {
+        if(! is_file($data['view']) && !  class_exists($data['view'])) {
             throw new FileException("Could not resolve component class or file for: {$data['view']}");
         }
 
-        if(is_file($data['view']) && str_ends_with($data['view'], '.php')){
+        if(is_file($data['view']) && str_ends_with($data['view'], '.php') && ! class_exists($data['view'])){
             $class = require_once $data['view'];
-
-            dd($class);
         }
 
-
-        if(is_int($class) || (!is_null($class) && !class_exists($class))){
-            throw new FileException("Could not resolve component class or file for: {$component}, must return a class.");
+        if(is_int($class)){
+            throw new FileException("Could not resolve or require component class for: {$data['view']}, must return a class.");
         }
 
-        return parent::resolve($data);
+        return $class ? Container::getInstance()->make($class, $data["data"]) : parent::resolve($data);
     }
 
     protected function createBladeViewFromString($factory, $contents)

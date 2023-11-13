@@ -166,6 +166,9 @@ class Blade
 
     public static function deleteCacheDirectory(): bool
     {
+        if (is_null(static::$cachePath)) {
+            static::setCachePath(__DIR__.'/../.cache');
+        }
         return (new Filesystem)->deleteDirectory(static::getCachePath());
     }
 }

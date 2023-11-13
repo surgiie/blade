@@ -27,7 +27,7 @@ function write_mock_file(string $file, string $contents)
 {
     $file = trim($file, '/');
 
-    $path = test_mock_path().'/'.$file;
+    $path = test_mock_path().$file;
 
     @mkdir(dirname($path), recursive: true);
 

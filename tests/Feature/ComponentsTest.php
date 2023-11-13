@@ -346,3 +346,48 @@ it('can render blade x class components', function () {
     warning: I'll let it slide this time.
     EOL);
 });
+
+it('can render blade x class components on the fly', function () {
+    $view = write_mock_file('component.txt', <<<'EOL'
+    {{ $type }}: {{ $message }}
+    EOL);
+
+    $class = <<<"EOL"
+    <?php
+        namespace Surgiie\Blade\Tests;
+        use Surgiie\Blade\Component as BladeComponent;
+        class TestComponent extends BladeComponent
+        {
+            public \$type;
+            public \$message;
+            public function __construct(\$type, \$message)
+            {
+                \$this->type = \$type;
+                \$this->message = \$message;
+            }
+            public function render()
+            {
+                return blade()->render("$view", [
+                    'type' => \$this->type,
+                    'message' => \$this->message,
+                ]);
+            }
+        }
+        return TestComponent::class;
+    EOL;
+
+    write_mock_file('component.php', $class);
+
+    $path = write_mock_file('file.yaml', <<<'EOL'
+    <x-component.php :type='$type' :message='$message' />
+    EOL);
+
+    $contents = testBlade()->render($path, [
+        'message' => 'Something went wrong!',
+        'type' => 'error',
+    ]);
+
+    expect($contents)->toBe(<<<'EOL'
+    error: Something went wrong!
+    EOL);
+});
