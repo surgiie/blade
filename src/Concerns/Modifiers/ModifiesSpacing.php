@@ -1,22 +1,20 @@
 <?php
 
-namespace Surgiie\Blade\Concerns;
+namespace Surgiie\Blade\Concerns\Modifiers;
 
-trait ModifiesRenderedContent
+trait ModifiesSpacing
 {
     /**Modify the given content using the given options. */
-    protected function modifyRenderedContent(string $content, array $options = [])
+    protected function modifySpacing(string $content, array $options = [])
     {
         $result = [];
-        $lines = explode(PHP_EOL, $content);
-
         $spacing = $options['spacing'] ?? false;
 
-        foreach ($lines as $line) {
+        foreach (explode(PHP_EOL, $content) as $line) {
+
             if ($spacing) {
                 $line = $spacing.$line;
             }
-
             $result[] = rtrim($line);
         }
 

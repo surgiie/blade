@@ -25,8 +25,8 @@
         "test": "vendor/bin/pest tests -c phpunit.xml.dist"
     },
     "require": {
-        "php": "^8.1",
-        "illuminate/view": "^9.0|^10.0"
+        "php": "^8.2",
+        "illuminate/view": "^10.0"
     },
     "require-dev": {
         "laravel/pint": "^1.7",

@@ -4,14 +4,8 @@ namespace Surgiie\Blade;
 
 class AnonymousComponent extends Component
 {
-    /**
-     * The component view.
-     */
     protected string $view;
 
-    /**
-     * The component data.
-     */
     protected array $data = [];
 
     public function __construct(string $view, array $data)
@@ -20,17 +14,11 @@ class AnonymousComponent extends Component
         $this->data = $data;
     }
 
-    /**
-     * Get the view contents that represent the component.
-     */
     public function render(): string
     {
-        return blade()->compile($this->view, $this->data);
+        return blade()->render($this->view, $this->data);
     }
 
-    /**
-     * Get the data that should be supplied to the view.
-     */
     public function data(): array
     {
         $this->attributes = $this->attributes ?: $this->newAttributeBag();

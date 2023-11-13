@@ -2,25 +2,44 @@
 
 namespace Surgiie\Blade;
 
+use Illuminate\Container\Container;
 use Illuminate\View\Component as BladeComponent;
+use Surgiie\Blade\Exceptions\FileException;
 
 abstract class Component extends BladeComponent
 {
-    /**
-     * Create a Blade view with the raw component string content.
-     *
-     * @param  \Illuminate\Contracts\View\Factory  $factory
-     * @param  string  $contents
-     * @return string
-     */
+    public static function resolve($data)
+    {
+        $class = null;
+
+        if (! isset($data['view'])) {
+            return parent::resolve($data);
+        }
+
+        if (! is_file($data['view']) && ! class_exists($data['view'])) {
+            throw new FileException("Could not resolve component class or file for: {$data['view']}");
+        }
+
+        if (is_file($data['view']) && str_ends_with($data['view'], '.php') && ! class_exists($data['view'])) {
+            $class = require_once $data['view'];
+        }
+
+        if (is_int($class)) {
+            throw new FileException("Could not resolve or require component class for: {$data['view']}, must return a class.");
+        }
+
+        return $class ? Container::getInstance()->make($class, $data['data']) : parent::resolve($data);
+    }
+
     protected function createBladeViewFromString($factory, $contents)
     {
-        $directory = blade()->getCompiledPath();
+        $directory = Blade::getCachePath();
 
-        if (! is_file($viewFile = $directory.'/'.sha1($contents).'.php')) {
+        if (! is_file($viewFile = $directory.'/'.hash('xxh128', $contents).'.php')) {
             if (! is_dir($directory)) {
                 mkdir($directory, 0755, true);
             }
+
             file_put_contents($viewFile, $contents);
         }
 

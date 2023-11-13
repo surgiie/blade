@@ -2,7 +2,25 @@
 
 ![tests](https://github.com/surgiie/blade/actions/workflows/tests.yml/badge.svg)
 
-An extended version of the Laravel Blade engine so that it can be used on any textual files.
+An extended standalone version of the Laravel Blade engine so that it can be used on any textual file on the fly.
+
+## Why?
+
+There are several standalone blade packages out there, but there all meant for html template files where spacing is not important.
+
+I wanted the ability to use the blade engine for rendering template files such as yaml during my deployment ci pipelines, and wanted it to work basically on any textual file on the fly.
+
+The blade engine trims the output and some compiled directives dont preserve nesting of the rendered content, for example, if you have a file like this:
+
+```yaml
+# example.yaml
+name: {{ $name }}
+test:
+    @include("partial.yaml")
+```
+Each line of the contents of the `@include` should also be indented by the number of spaces left of the `@include` directive, but it's not and the rendered result will not match the original file structure
+
+in terms of nesting/spacing. This is a problematic when rendering files like yaml where spacing and indentation are semantically important.
 
 ## Installation
 
@@ -17,86 +35,102 @@ composer require surgiie/blade
 
 use Surgiie\Blade\Blade;
 use Illuminate\Container\Container;
-use Illuminate\Filesystem\Filesystem;
+use Surgiie\Blade\Component;
 
-$fs = new Filesystem;
-
+// set a cache directory for compiled cache files, defaults to vendor/surgiie/blade/.cache
+Blade::setCachePath("/tmp/.blade");
 
 $blade = new Blade(
+    // pass optional container, defaults to: Container::getInstance() or new instance.
     container: new Container,
-    filesystem: $fs,
-    // default: vendor/surgiie/blade/.compiled
-    compiledPath: "/path/to/cached/compiled/files"
 );
 
-// use absolute path to file
-$contents = $blade->compile("/path/to/file", ['var'=>'example']);
+// then render any textual file by path and vars:
+$contents = $blade->render("/path/to/file", ['var'=>'example']);
+```
 
-// delete compiled files which are stored in
-$fs->deleteDirectory($blade->getCompiledPath());
+### Delete Cached Files
+You can delete cached files using the `deleteCacheDirectory` method:
 
-// or if you dont want to use cached compiled files, i.e force re-render:
-$contents = $blade->compile("/path/to/file", ['var'=>'example'], cache: false);
 
+```php
+Blade::deleteCacheDirectory();
+```
+
+**Tip** - Do this before calling `render` method to force render a file.
+
+
+### Custom Directives
+
+You can create a custom blade directive using the `directive` method:
+
+
+```php
+$blade = new Blade();
+
+$blade->directive('echo', fn ($expression) => "<?php echo {$expression}; ?>");
+
+$contents = $blade->render("/example.txt", ['name' => 'Surgiie', 'dogs'=>['luffy', 'zoro', 'sanji']]);
 ```
 ### Using Components
 
 You may also use Blade `x-*` components in your file:
 
+[Learn More](https://laravel.com/docs/10.x/blade#components)
 
 #### Anonymous Components
+
+Using dot notation component tag names, you can specify a component file to render:
+
 ```html
-<x-components.example data="Something" />
+<x-component.yaml data="Something" />
 ```
 
-Where `components.example` is a relative file  `components/example` to the file being compiled, this file can then contain any raw content and will be treated as a anonymous component.
+Where `component.yaml` resolves to the file `components/yaml` or `component.yaml` file that is relative to the file being rendered, this file can then contain any raw content and will be treated as a anonymous component.
+
+**Absolute Paths**:
+If you want to render a component file using absolute path, use a double dash instead of single dash after the `x` in tag name, i.e `x--` instead of `x-`:
+
+```html
+<x--components.foo.yaml data="Something" />
+```
+The above component will resolve to `/components/foo/yaml`, if that doesnt exist, resolves to `/components/foo.yaml` or errors out if either dont exist.
 
 #### Class Components
 
-Class based components have no special difference in syntax:
-```html
-<x-components.example data="Something" />
-```
+To specify what component class to use for a component name, you can register the component using the `components` method:
 
-The only difference here is that `components.example` is a relative `.php` file  to the file being compiled, in this case `components/example.php`.
-
-
-**Note** that since this package is customized to allow compiling any file path on the fly, the `.php` class component, must return the `::class` component, and extend the `\Surgiie\Blade\Component` class:
 
 ```php
+Blade::components([
+    'components.example' => App\Components\Alert::class,
+]);
 
-<?php
-
-namespace Components;
-
-use Surgiie\Blade\Component as BladeComponent;
-
-class Alert extends BladeComponent
-{
-    public $message;
-
-    public function __construct($message)
-    {
-        $this->message = $message;
-    }
-
-    public function render()
-    {
-        return blade()->compile('/your-component-file', [
-            'message' => $this->message,
-        ]);
-    }
-}
-
-return Alert::class; // required so the engine can require the class on the fly and remember it.
 ```
-
-#### Using absolute paths for components:
-
-Components are resolved using a relative path from the filed being compiled, if you want to use an absolute path, use a double `-` in the component name:
+Then you can use the component in your file:
 
 ```html
-<x--components.example data="Something" />
+<x-components.example data="example" />
 ```
 
-This will resolve the path to look for the file to `/components/example` instead of `/<file-being-compiled-path>/components/example`.
+The engine, will then use the class to render the component.
+
+
+If you are using this package where a class may not be available at runtime or want to `require` the class on the fly you can use a php file that returns the class constant:
+
+```php
+use Surgiie\Blade\Component;
+
+class Alert extends Component;
+{
+   /** ....*/
+}
+
+return Alert::class;
+```
+Then if the component name ends with .php, the engine will attempt to `require` it on the fly:
+
+```html
+<x-alert.php />
+```
+

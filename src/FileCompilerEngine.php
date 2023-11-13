@@ -4,19 +4,16 @@ namespace Surgiie\Blade;
 
 use Illuminate\View\Engines\CompilerEngine;
 use Illuminate\View\Engines\PhpEngine;
+use Surgiie\Blade\Exceptions\FileException;
 use Throwable;
 
 class FileCompilerEngine extends CompilerEngine
 {
     /**
-     * Overwritten to not ltrim but to rtrim outbutput buffer.
-     * This assists with preserving spacing/indentation from
-     * the compiled file which is important to preserve so
-     * we dont end up with shifted content in a file.
-     *
-     * @param  string  $path
-     * @param  array  $data
-     * @return void
+     * Overwritten to not ltrim but to rtrim output buffer.
+     * This helps with preserving spacing/indentation from
+     * the compiled file which we want to preserve, especially
+     * in files where nesting is important, such as yaml.
      */
     protected function evaluatePath($path, $data)
     {
@@ -24,9 +21,6 @@ class FileCompilerEngine extends CompilerEngine
 
         ob_start();
 
-        // We'll evaluate the contents of the view inside a try/catch block so we can
-        // flush out any stray output that might get out before an error occurs or
-        // an exception is thrown. This prevents any partial views from leaking.
         try {
             $this->files->getRequire($path, $data);
         } catch (Throwable $e) {
@@ -36,21 +30,13 @@ class FileCompilerEngine extends CompilerEngine
         return rtrim(ob_get_clean());
     }
 
-    /**
-     * Handle a view render exception.
-     *
-     * @param  int  $obLevel
-     * @return void
-     */
     protected function handleViewException(Throwable $e, $obLevel)
     {
-        $class = get_class($e);
-        PhpEngine::handleViewException(new $class($this->getMessage($e)), $obLevel);
+        $e = new FileException($this->getMessage($e), 0, 1, $e->getFile(), $e->getLine(), $e);
+
+        PhpEngine::handleViewException($e, $obLevel);
     }
 
-    /**
-     * Get a formatted exception message for a compile error.
-     */
     protected function getMessage(Throwable $e): string
     {
         $msg = $e->getMessage();

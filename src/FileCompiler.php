@@ -3,54 +3,34 @@
 namespace Surgiie\Blade;
 
 use Illuminate\View\Compilers\BladeCompiler;
-use Surgiie\Blade\Concerns\CompilesComponents;
-use Surgiie\Blade\Concerns\CompilesIncludes;
+use Surgiie\Blade\Concerns\Compilers\CompilesComponents;
+use Surgiie\Blade\Concerns\Compilers\CompilesIncludes;
 
 class FileCompiler extends BladeCompiler
 {
-    use CompilesIncludes, CompilesComponents;
+    use CompilesComponents, CompilesIncludes;
 
-    /**The options stack for each statement.*/
-    protected array $optionsStack = [];
+    protected array $modifiersStack = [];
 
-    /**
-     * Compile Blade statements that start with "@".
-     *
-     * @param  string  $value
-     * @return string
-     */
     protected function compileStatements($value)
     {
         return preg_replace_callback(
             '/\h*(?:\#\#BEGIN-\COMPONENT\-CLASS\#\#)?\B@(@?\w+(?:::\w+)?)([ \t]*)(\( ( (?>[^()]+) | (?3) )* \))?/x', function ($match) {
+                // capture the spacing next to the directive so we can modify the content later so it's indented properly
                 $spacingTotal = strlen($match[0]) - strlen(ltrim($match[0]));
 
                 $spacing = str_repeat(' ', $spacingTotal);
 
                 $match[0] = ltrim($match[0]);
 
-                $this->optionsStack[] = ['spacing' => $spacing];
+                $this->modifiersStack[] = ['spacing' => $spacing];
 
                 return $this->compileStatement($match);
+
             }, $value
         );
     }
 
-    /**
-     * Determine if the file is expired.
-     *
-     * @param  string  $path
-     */
-    public function isExpired($path): bool
-    {
-        return Blade::shouldCache() ? parent::isExpired($path) : true;
-    }
-
-    /**
-     * Compile the component tags.
-     *
-     * @param  string  $value
-     */
     protected function compileComponentTags($value): string
     {
         if (! $this->compilesComponentTags) {
