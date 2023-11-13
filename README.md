@@ -6,11 +6,7 @@ An extended standalone version of the Laravel Blade engine so that it can be use
 
 ## Why?
 
-There are several standalone blade packages out there, but there all meant for html template files where spacing is not important.
-
-I wanted the ability to use the blade engine for rendering template files such as yaml during my deployment ci pipelines, and wanted it to work basically on any textual file on the fly.
-
-The blade engine trims the output and some compiled directives dont preserve nesting of the rendered content, for example, if you have a file like this:
+There are several standalone blade packages out there, but there all meant for html template files where spacing is not important. I wanted the ability to use the blade engine for rendering template files such as yaml during my deployment ci pipelines, and wanted it to work basically on any textual file on the fly. The blade engine trims the output and some compiled directives dont preserve nesting of the rendered content, for example, if you have a file like this:
 
 ```yaml
 # example.yaml
@@ -18,9 +14,7 @@ name: {{ $name }}
 test:
     @include("partial.yaml")
 ```
-Each line of the contents of the `@include` should also be indented by the number of spaces left of the `@include` directive, but it's not and the rendered result will not match the original file structure
-
-in terms of nesting/spacing. This is a problematic when rendering files like yaml where spacing and indentation are semantically important.
+Each line of the contents of the `@include` should also be indented by the number of spaces left of the `@include` directive, but it's not and the rendered result will not match the original file structure in terms of nesting/spacing. This is a problematic when rendering files like yaml where spacing and indentation are semantically important.
 
 ## Installation
 
