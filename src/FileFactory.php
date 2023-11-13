@@ -3,7 +3,6 @@
 namespace Surgiie\Blade;
 
 use Illuminate\View\Factory;
-use Surgiie\Blade\Exceptions\FileException;
 use Surgiie\Blade\Concerns\Modifiers\ModifiesSpacing;
 
 class FileFactory extends Factory

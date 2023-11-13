@@ -4,7 +4,6 @@ namespace Surgiie\Blade\Concerns\Compilers;
 
 use Illuminate\Support\Str;
 use Illuminate\View\Component;
-use Surgiie\Blade\Exceptions\FileException;
 
 trait CompilesComponents
 {
