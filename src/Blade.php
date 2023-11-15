@@ -40,6 +40,11 @@ class Blade
 
         $this->engineResolver()->register(self::ENGINE_NAME, fn () => $this->engine());
 
+        static::ensureCachePathIsSet();
+    }
+
+    protected static function ensureCachePathIsSet(): void
+    {
         if (is_null(static::$cachePath)) {
             static::setCachePath(__DIR__.'/../.cache');
         }
@@ -101,6 +106,8 @@ class Blade
 
     public static function getCachePath(): ?string
     {
+        static::ensureCachePathIsSet();
+
         return static::$cachePath;
     }
 
@@ -166,9 +173,7 @@ class Blade
 
     public static function deleteCacheDirectory(): bool
     {
-        if (is_null(static::$cachePath)) {
-            static::setCachePath(__DIR__.'/../.cache');
-        }
+        static::ensureCachePathIsSet();
 
         return (new Filesystem)->deleteDirectory(static::getCachePath());
     }
