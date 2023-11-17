@@ -7,10 +7,16 @@ use Illuminate\View\Component;
 
 trait CompilesComponents
 {
-    protected ?string $lastComponent = null;
-
+    /**
+     * The modifiers stack that holds compiled options for the component.
+     */
     protected array $componentModifiersStack = [];
 
+    /**
+     * Compile the end component directive into valid PHP.
+     *
+     * @return void
+     */
     protected function compileEndComponent()
     {
         $modifiers = array_pop($this->componentModifiersStack);
@@ -20,6 +26,12 @@ trait CompilesComponents
         return "<?php echo \$__env->renderComponent(modifiers: $modifiers); ?> ";
     }
 
+    /**
+     * Compile the component directive into valid PHP.
+     *
+     * @param  string  $expression
+     * @return string
+     */
     protected function compileComponent($expression)
     {
         // propagate the modifiers stack to the component compilation functions

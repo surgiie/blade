@@ -10,10 +10,11 @@ use Throwable;
 class FileCompilerEngine extends CompilerEngine
 {
     /**
-     * Overwritten to not ltrim but to rtrim output buffer.
-     * This helps with preserving spacing/indentation from
-     * the compiled file which we want to preserve, especially
-     * in files where nesting is important, such as yaml.
+     * Require the file path and return the evaluated contents.
+     *
+     * @param  string  $path
+     * @param  array  $data
+     * @return string
      */
     protected function evaluatePath($path, $data)
     {
@@ -27,17 +28,30 @@ class FileCompilerEngine extends CompilerEngine
             $this->handleViewException($e, $obLevel);
         }
 
+        // Parent class uses ltrim but rtrim output buffer instead.
+        // This helps with preserving spacing/indentation from
+        // the compiled file which we want to preserve, especially
+        // in files where nesting is important, such as yaml.
         return rtrim(ob_get_clean());
     }
 
+    /**
+     * Handle a file exception.
+     *
+     * @param  int  $obLevel
+     * @return void
+     */
     protected function handleViewException(Throwable $e, $obLevel)
     {
-        $e = new FileException($this->getMessage($e), 0, 1, $e->getFile(), $e->getLine(), $e);
+        $e = new FileException($this->getExceptionMessage($e), 0, 1, $e->getFile(), $e->getLine(), $e);
 
         PhpEngine::handleViewException($e, $obLevel);
     }
 
-    protected function getMessage(Throwable $e): string
+    /**
+     * Get the exception message for an exception.
+     */
+    protected function getExceptionMessage(Throwable $e): string
     {
         $msg = $e->getMessage();
 

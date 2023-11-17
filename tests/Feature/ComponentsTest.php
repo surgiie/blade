@@ -340,11 +340,11 @@ it('can render blade x class components', function () {
         'messageTwo' => "I'll let it slide this time.",
         'typeTwo' => 'warning',
     ]);
-
-    expect($contents)->toBe(<<<'EOL'
+    $result = <<<'EOL'
     error: Something went wrong!
     warning: I'll let it slide this time.
-    EOL);
+    EOL;
+    expect($contents)->toBe($result);
 });
 
 it('can render blade x class components on the fly', function () {
@@ -353,28 +353,28 @@ it('can render blade x class components on the fly', function () {
     EOL);
 
     $class = <<<"EOL"
-    <?php
-        namespace Surgiie\Blade\Tests;
-        use Surgiie\Blade\Component as BladeComponent;
-        class TestComponent extends BladeComponent
-        {
-            public \$type;
-            public \$message;
-            public function __construct(\$type, \$message)
-            {
-                \$this->type = \$type;
-                \$this->message = \$message;
-            }
-            public function render()
-            {
-                return blade()->render("$view", [
-                    'type' => \$this->type,
-                    'message' => \$this->message,
-                ]);
-            }
-        }
-        return TestComponent::class;
-    EOL;
+<?php
+namespace Surgiie\Blade\Tests;
+use Surgiie\Blade\Component as BladeComponent;
+class TestComponent extends BladeComponent
+{
+    public \$type;
+    public \$message;
+    public function __construct(\$type, \$message)
+    {
+        \$this->type = \$type;
+        \$this->message = \$message;
+    }
+    public function render()
+    {
+        return blade()->render("$view", [
+            'type' => \$this->type,
+            'message' => \$this->message,
+        ]);
+    }
+}
+return TestComponent::class;
+EOL;
 
     write_mock_file('component.php', $class);
 
