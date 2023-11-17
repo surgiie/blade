@@ -10,8 +10,17 @@ class FileCompiler extends BladeCompiler
 {
     use CompilesComponents, CompilesIncludes;
 
+    /**
+     * Stack holding the modification options that should be applied compiled statements.
+     */
     protected array $modifiersStack = [];
 
+    /**
+     * Compile @ blade directives from the given value.
+     *
+     * @param  string  $value
+     * @return string
+     */
     protected function compileStatements($value)
     {
         return preg_replace_callback(
@@ -23,7 +32,13 @@ class FileCompiler extends BladeCompiler
 
                 $match[0] = ltrim($match[0]);
 
-                $this->modifiersStack[] = ['spacing' => $spacing];
+                $modifiers = [];
+
+                if (! empty($spacing)) {
+                    $modifiers['spacing'] = $spacing;
+                }
+
+                $this->modifiersStack[] = $modifiers;
 
                 return $this->compileStatement($match);
 
@@ -31,6 +46,11 @@ class FileCompiler extends BladeCompiler
         );
     }
 
+    /**
+     * Compile component tag elements to valid php.
+     *
+     * @param  string  $value
+     */
     protected function compileComponentTags($value): string
     {
         if (! $this->compilesComponentTags) {
