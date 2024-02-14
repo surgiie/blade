@@ -1,5 +1,9 @@
 # Blade
 
+# Abandoned
+
+This package is no longer maintained consider using [laravel-blade-cli](https://github.com/surgiie/laravel-blade-cli) for templating needs. 
+
 ![tests](https://github.com/surgiie/blade/actions/workflows/tests.yml/badge.svg)
 
 An extended standalone version of the Laravel Blade engine so that it can be used on any textual file on the fly.
